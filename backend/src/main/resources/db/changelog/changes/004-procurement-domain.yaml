@@ -1,0 +1,619 @@
+databaseChangeLog:
+
+  - changeSet:
+
+      id: 004-procurement-domain
+
+      author: tenderpilot
+
+      changes:
+
+        - createTable:
+
+            tableName: procurement_buyers
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: canonical_key
+                  type: VARCHAR(220)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: legal_name
+                  type: VARCHAR(300)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: buyer_category
+                  type: VARCHAR(80)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: country_code
+                  type: VARCHAR(2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: city
+                  type: VARCHAR(180)
+
+              - column:
+                  name: registration_number
+                  type: VARCHAR(140)
+
+              - column:
+                  name: website_url
+                  type: VARCHAR(500)
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addUniqueConstraint:
+
+            tableName: procurement_buyers
+
+            columnNames: canonical_key
+
+            constraintName: uk_procurement_buyers_canonical_key
+
+
+        - createIndex:
+
+            tableName: procurement_buyers
+
+            indexName: idx_procurement_buyers_name
+
+            columns:
+
+              - column:
+                  name: legal_name
+
+
+        - createTable:
+
+            tableName: procurement_tenders
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: canonical_key
+                  type: VARCHAR(320)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: buyer_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: title
+                  type: VARCHAR(1000)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: description
+                  type: VARCHAR(12000)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: status
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: procedure_type
+                  type: VARCHAR(80)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: contract_nature
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: publication_date
+                  type: DATE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: submission_deadline
+                  type: TIMESTAMP WITH TIME ZONE
+
+              - column:
+                  name: estimated_min_value
+                  type: DECIMAL(19,2)
+
+              - column:
+                  name: estimated_max_value
+                  type: DECIMAL(19,2)
+
+              - column:
+                  name: currency
+                  type: VARCHAR(3)
+
+              - column:
+                  name: country_code
+                  type: VARCHAR(2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: primary_region_code
+                  type: VARCHAR(40)
+
+              - column:
+                  name: primary_region_name
+                  type: VARCHAR(180)
+
+              - column:
+                  name: framework_agreement
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: joint_procurement
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: electronic_submission
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addUniqueConstraint:
+
+            tableName: procurement_tenders
+
+            columnNames: canonical_key
+
+            constraintName: uk_procurement_tenders_canonical_key
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: procurement_tenders
+
+            baseColumnNames: buyer_id
+
+            referencedTableName: procurement_buyers
+
+            referencedColumnNames: id
+
+            constraintName: fk_procurement_tenders_buyer
+
+
+        - createIndex:
+
+            tableName: procurement_tenders
+
+            indexName: idx_procurement_tenders_publication_date
+
+            columns:
+
+              - column:
+                  name: publication_date
+
+
+        - createIndex:
+
+            tableName: procurement_tenders
+
+            indexName: idx_procurement_tenders_deadline
+
+            columns:
+
+              - column:
+                  name: submission_deadline
+
+
+        - createTable:
+
+            tableName: procurement_tender_cpvs
+
+            columns:
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: cpv_code
+                  type: VARCHAR(8)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: cpv_label
+                  type: VARCHAR(300)
+                  constraints:
+                    nullable: false
+
+
+        - addPrimaryKey:
+
+            tableName: procurement_tender_cpvs
+
+            columnNames: tender_id,position
+
+            constraintName: pk_procurement_tender_cpvs
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: procurement_tender_cpvs
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_procurement_tender_cpvs_tender
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: procurement_tender_cpvs
+
+            indexName: idx_procurement_tender_cpvs_code
+
+            columns:
+
+              - column:
+                  name: cpv_code
+
+
+        - createTable:
+
+            tableName: procurement_tender_locations
+
+            columns:
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: country_code
+                  type: VARCHAR(2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: region_code
+                  type: VARCHAR(40)
+
+              - column:
+                  name: region_name
+                  type: VARCHAR(180)
+
+              - column:
+                  name: city
+                  type: VARCHAR(180)
+
+
+        - addPrimaryKey:
+
+            tableName: procurement_tender_locations
+
+            columnNames: tender_id,position
+
+            constraintName: pk_procurement_tender_locations
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: procurement_tender_locations
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_procurement_tender_locations_tender
+
+            onDelete: CASCADE
+
+
+        - createTable:
+
+            tableName: procurement_tender_lots
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: lot_number
+                  type: VARCHAR(80)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: title
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: description
+                  type: VARCHAR(5000)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: estimated_min_value
+                  type: DECIMAL(19,2)
+
+              - column:
+                  name: estimated_max_value
+                  type: DECIMAL(19,2)
+
+              - column:
+                  name: currency
+                  type: VARCHAR(3)
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: procurement_tender_lots
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_procurement_tender_lots_tender
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: procurement_tender_lots
+
+            indexName: idx_procurement_tender_lots_tender
+
+            columns:
+
+              - column:
+                  name: tender_id
+
+
+        - createTable:
+
+            tableName: procurement_tender_lot_cpvs
+
+            columns:
+
+              - column:
+                  name: lot_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: cpv_code
+                  type: VARCHAR(8)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: cpv_label
+                  type: VARCHAR(300)
+                  constraints:
+                    nullable: false
+
+
+        - addPrimaryKey:
+
+            tableName: procurement_tender_lot_cpvs
+
+            columnNames: lot_id,position
+
+            constraintName: pk_procurement_tender_lot_cpvs
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: procurement_tender_lot_cpvs
+
+            baseColumnNames: lot_id
+
+            referencedTableName: procurement_tender_lots
+
+            referencedColumnNames: id
+
+            constraintName: fk_procurement_tender_lot_cpvs_lot
+
+            onDelete: CASCADE
+
+
+        - createTable:
+
+            tableName: procurement_tender_sources
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: source
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: external_id
+                  type: VARCHAR(220)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: external_version
+                  type: VARCHAR(120)
+
+              - column:
+                  name: notice_type
+                  type: VARCHAR(120)
+
+              - column:
+                  name: source_url
+                  type: VARCHAR(1000)
+
+              - column:
+                  name: payload_checksum
+                  type: VARCHAR(128)
+
+              - column:
+                  name: source_published_at
+                  type: TIMESTAMP WITH TIME ZONE
+
+              - column:
+                  name: first_seen_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: last_seen_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: procurement_tender_sources
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_procurement_tender_sources_tender
+
+            onDelete: CASCADE
+
+
+        - addUniqueConstraint:
+
+            tableName: procurement_tender_sources
+
+            columnNames: source,external_id
+
+            constraintName: uk_procurement_source_external_id
+
+
+        - createIndex:
+
+            tableName: procurement_tender_sources
+
+            indexName: idx_procurement_tender_sources_tender
+
+            columns:
+
+              - column:
+                  name: tender_id
