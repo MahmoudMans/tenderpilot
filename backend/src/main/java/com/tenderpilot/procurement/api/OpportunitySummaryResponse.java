@@ -43,17 +43,17 @@ public record OpportunitySummaryResponse(
 
         List<ProcurementSource> sources,
 
-        int lotCount
+        int lotCount,
+
+        BigDecimal awardedAmount,
+
+        String awardedCurrency
 
 ) {
 
     public record CpvSummary(
-
             String code,
-
             String label
-
     ) {
     }
-
 }

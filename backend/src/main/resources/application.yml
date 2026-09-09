@@ -77,7 +77,7 @@ info:
 
     name: TenderPilot
 
-    version: 0.6.0-SNAPSHOT
+    version: 0.7.0-SNAPSHOT
 
 
 
@@ -150,3 +150,19 @@ tenderpilot.boamp:
   max-limit: ${BOAMP_MAX_LIMIT:100}
 
   manual-sync-enabled: ${BOAMP_MANUAL_SYNC_ENABLED:true}
+
+tenderpilot.decp:
+
+  base-url: ${DECP_BASE_URL:https://data.economie.gouv.fr}
+
+  records-path: ${DECP_RECORDS_PATH:/api/explore/v2.1/catalog/datasets/decp-2022-marches-valides/records}
+
+  dataset-id: ${DECP_DATASET_ID:decp-2022-marches-valides}
+
+  default-lookback-days: ${DECP_DEFAULT_LOOKBACK_DAYS:7}
+
+  default-limit: ${DECP_DEFAULT_LIMIT:25}
+
+  max-limit: ${DECP_MAX_LIMIT:100}
+
+  manual-sync-enabled: ${DECP_MANUAL_SYNC_ENABLED:true}

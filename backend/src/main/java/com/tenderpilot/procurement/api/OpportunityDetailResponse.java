@@ -58,97 +58,83 @@ public record OpportunityDetailResponse(
 
         List<LotResponse> lots,
 
-        List<SourceResponse> sources
+        List<SourceResponse> sources,
+
+        AwardResponse award
 
 ) {
 
     public record BuyerResponse(
-
             UUID id,
-
             String legalName,
-
             BuyerCategory category,
-
             String countryCode,
-
             String city,
-
             String registrationNumber,
-
             String websiteUrl
-
     ) {
     }
-
 
     public record CpvResponse(
-
             String code,
-
             String label
-
     ) {
     }
-
 
     public record LocationResponse(
-
             String countryCode,
-
             String regionCode,
-
             String regionName,
-
             String city
-
     ) {
     }
-
 
     public record LotResponse(
-
             UUID id,
-
             String lotNumber,
-
             String title,
-
             String description,
-
             BigDecimal estimatedMinValue,
-
             BigDecimal estimatedMaxValue,
-
             String currency,
-
             List<CpvResponse> cpvs
-
     ) {
     }
-
 
     public record SourceResponse(
-
             ProcurementSource source,
-
             String externalId,
-
             String externalVersion,
-
             String noticeType,
-
             String sourceUrl,
-
             String payloadChecksum,
-
             Instant sourcePublishedAt,
-
             Instant firstSeenAt,
-
             Instant lastSeenAt
-
     ) {
     }
 
+    public record AwardResponse(
+            LocalDate notificationDate,
+            BigDecimal awardedAmount,
+            String currency,
+            Integer durationMonths,
+            String priceForm,
+            Integer offersReceived,
+            String frameworkAgreementId,
+            String socialConsiderations,
+            String environmentalConsiderations,
+            String executionModalities,
+            String operatorGroupType,
+            String subcontractingDeclared,
+            List<AwardSupplierResponse> suppliers
+    ) {
+    }
+
+    public record AwardSupplierResponse(
+            String identifier,
+            String identifierType,
+            String legalName
+    ) {
+    }
 }

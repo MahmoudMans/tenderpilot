@@ -1,13 +1,10 @@
 export type ProcurementSource =
-
   | "TED"
   | "BOAMP"
   | "DECP"
   | "MANUAL_DEMO";
 
-
 export type ProcurementStatus =
-
   | "DRAFT"
   | "PUBLISHED"
   | "UPDATED"
@@ -16,9 +13,7 @@ export type ProcurementStatus =
   | "CANCELLED"
   | "ARCHIVED";
 
-
 export type ProcurementProcedure =
-
   | "OPEN"
   | "RESTRICTED"
   | "COMPETITIVE_WITH_NEGOTIATION"
@@ -30,18 +25,14 @@ export type ProcurementProcedure =
   | "FRAMEWORK_CALL_OFF"
   | "OTHER";
 
-
 export type ContractNature =
-
   | "WORKS"
   | "SERVICES"
   | "SUPPLIES"
   | "MIXED"
   | "OTHER";
 
-
 export type BuyerCategory =
-
   | "CENTRAL_GOVERNMENT"
   | "LOCAL_AUTHORITY"
   | "PUBLIC_AGENCY"
@@ -52,40 +43,26 @@ export type BuyerCategory =
   | "TRANSPORT"
   | "OTHER";
 
-
 export type CpvSummary = {
-
-  code:
-    string;
-
-  label:
-    string;
-
+  code: string;
+  label: string;
 };
-
 
 export type OpportunitySummary = {
 
-  id:
-    string;
+  id: string;
 
-  title:
-    string;
+  title: string;
 
-  buyerName:
-    string;
+  buyerName: string;
 
-  status:
-    ProcurementStatus;
+  status: ProcurementStatus;
 
-  procedureType:
-    ProcurementProcedure;
+  procedureType: ProcurementProcedure;
 
-  contractNature:
-    ContractNature;
+  contractNature: ContractNature;
 
-  publicationDate:
-    string;
+  publicationDate: string;
 
   submissionDeadline:
     string
@@ -107,51 +84,48 @@ export type OpportunitySummary = {
     |
     null;
 
-  countryCode:
-    string;
+  countryCode: string;
 
   primaryRegionName:
     string
     |
     null;
 
-  cpvs:
-    CpvSummary[];
+  cpvs: CpvSummary[];
 
-  sources:
-    ProcurementSource[];
+  sources: ProcurementSource[];
 
-  lotCount:
-    number;
+  lotCount: number;
+
+  awardedAmount:
+    number
+    |
+    null;
+
+  awardedCurrency:
+    string
+    |
+    null;
 
 };
 
-
 export type OpportunityDetail = {
 
-  id:
-    string;
+  id: string;
 
-  canonicalKey:
-    string;
+  canonicalKey: string;
 
-  title:
-    string;
+  title: string;
 
-  description:
-    string;
+  description: string;
 
-  status:
-    ProcurementStatus;
+  status: ProcurementStatus;
 
-  procedureType:
-    ProcurementProcedure;
+  procedureType: ProcurementProcedure;
 
-  contractNature:
-    ContractNature;
+  contractNature: ContractNature;
 
-  publicationDate:
-    string;
+  publicationDate: string;
 
   submissionDeadline:
     string
@@ -173,8 +147,7 @@ export type OpportunityDetail = {
     |
     null;
 
-  countryCode:
-    string;
+  countryCode: string;
 
   primaryRegionCode:
     string
@@ -186,144 +159,123 @@ export type OpportunityDetail = {
     |
     null;
 
-  frameworkAgreement:
-    boolean;
+  frameworkAgreement: boolean;
 
-  jointProcurement:
-    boolean;
+  jointProcurement: boolean;
 
-  electronicSubmission:
-    boolean;
+  electronicSubmission: boolean;
 
   buyer: {
-
-    id:
-      string;
-
-    legalName:
-      string;
-
-    category:
-      BuyerCategory;
-
-    countryCode:
-      string;
-
-    city:
-      string
-      |
-      null;
-
-    registrationNumber:
-      string
-      |
-      null;
-
-    websiteUrl:
-      string
-      |
-      null;
-
+    id: string;
+    legalName: string;
+    category: BuyerCategory;
+    countryCode: string;
+    city: string | null;
+    registrationNumber: string | null;
+    websiteUrl: string | null;
   };
 
-  cpvs:
-    CpvSummary[];
+  cpvs: CpvSummary[];
 
   locations: Array<{
-
-    countryCode:
-      string;
-
-    regionCode:
-      string
-      |
-      null;
-
-    regionName:
-      string
-      |
-      null;
-
-    city:
-      string
-      |
-      null;
-
+    countryCode: string;
+    regionCode: string | null;
+    regionName: string | null;
+    city: string | null;
   }>;
 
   lots: Array<{
-
-    id:
-      string;
-
-    lotNumber:
-      string;
-
-    title:
-      string;
-
-    description:
-      string;
-
-    estimatedMinValue:
-      number
-      |
-      null;
-
-    estimatedMaxValue:
-      number
-      |
-      null;
-
-    currency:
-      string
-      |
-      null;
-
-    cpvs:
-      CpvSummary[];
-
+    id: string;
+    lotNumber: string;
+    title: string;
+    description: string;
+    estimatedMinValue: number | null;
+    estimatedMaxValue: number | null;
+    currency: string | null;
+    cpvs: CpvSummary[];
   }>;
 
   sources: Array<{
-
-    source:
-      ProcurementSource;
-
-    externalId:
-      string;
-
-    externalVersion:
-      string
-      |
-      null;
-
-    noticeType:
-      string
-      |
-      null;
-
-    sourceUrl:
-      string
-      |
-      null;
-
-    payloadChecksum:
-      string
-      |
-      null;
-
-    sourcePublishedAt:
-      string
-      |
-      null;
-
-    firstSeenAt:
-      string;
-
-    lastSeenAt:
-      string;
-
+    source: ProcurementSource;
+    externalId: string;
+    externalVersion: string | null;
+    noticeType: string | null;
+    sourceUrl: string | null;
+    payloadChecksum: string | null;
+    sourcePublishedAt: string | null;
+    firstSeenAt: string;
+    lastSeenAt: string;
   }>;
+
+  award:
+    {
+      notificationDate:
+        string
+        |
+        null;
+
+      awardedAmount:
+        number
+        |
+        null;
+
+      currency:
+        string
+        |
+        null;
+
+      durationMonths:
+        number
+        |
+        null;
+
+      priceForm:
+        string
+        |
+        null;
+
+      offersReceived:
+        number
+        |
+        null;
+
+      frameworkAgreementId:
+        string
+        |
+        null;
+
+      socialConsiderations:
+        string
+        |
+        null;
+
+      environmentalConsiderations:
+        string
+        |
+        null;
+
+      executionModalities:
+        string
+        |
+        null;
+
+      operatorGroupType:
+        string
+        |
+        null;
+
+      subcontractingDeclared:
+        string
+        |
+        null;
+
+      suppliers: Array<{
+        identifier: string | null;
+        identifierType: string | null;
+        legalName: string | null;
+      }>;
+    }
+    |
+    null;
 
 };

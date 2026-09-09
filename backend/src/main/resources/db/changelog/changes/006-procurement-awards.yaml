@@ -1,0 +1,179 @@
+databaseChangeLog:
+
+  - changeSet:
+
+      id: 006-procurement-awards
+
+      author: tenderpilot
+
+      changes:
+
+        - createTable:
+
+            tableName: procurement_tender_awards
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: notification_date
+                  type: DATE
+
+              - column:
+                  name: awarded_amount
+                  type: DECIMAL(19,2)
+
+              - column:
+                  name: currency
+                  type: VARCHAR(3)
+
+              - column:
+                  name: duration_months
+                  type: INTEGER
+
+              - column:
+                  name: price_form
+                  type: VARCHAR(160)
+
+              - column:
+                  name: offers_received
+                  type: INTEGER
+
+              - column:
+                  name: framework_agreement_id
+                  type: VARCHAR(220)
+
+              - column:
+                  name: social_considerations
+                  type: VARCHAR(600)
+
+              - column:
+                  name: environmental_considerations
+                  type: VARCHAR(600)
+
+              - column:
+                  name: execution_modalities
+                  type: VARCHAR(600)
+
+              - column:
+                  name: operator_group_type
+                  type: VARCHAR(160)
+
+              - column:
+                  name: subcontracting_declared
+                  type: VARCHAR(160)
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addUniqueConstraint:
+
+            tableName: procurement_tender_awards
+
+            columnNames: tender_id
+
+            constraintName: uk_procurement_tender_awards_tender
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: procurement_tender_awards
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_procurement_tender_awards_tender
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: procurement_tender_awards
+
+            indexName: idx_procurement_awards_notification_date
+
+            columns:
+
+              - column:
+                  name: notification_date
+
+
+        - createTable:
+
+            tableName: procurement_tender_award_suppliers
+
+            columns:
+
+              - column:
+                  name: award_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: supplier_identifier
+                  type: VARCHAR(200)
+
+              - column:
+                  name: identifier_type
+                  type: VARCHAR(100)
+
+              - column:
+                  name: legal_name
+                  type: VARCHAR(300)
+
+
+        - addPrimaryKey:
+
+            tableName: procurement_tender_award_suppliers
+
+            columnNames: award_id,position
+
+            constraintName: pk_procurement_tender_award_suppliers
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: procurement_tender_award_suppliers
+
+            baseColumnNames: award_id
+
+            referencedTableName: procurement_tender_awards
+
+            referencedColumnNames: id
+
+            constraintName: fk_procurement_tender_award_suppliers_award
+
+            onDelete: CASCADE

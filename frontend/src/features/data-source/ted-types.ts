@@ -1,36 +1,26 @@
 export type IngestionRunStatus =
-
   | "RUNNING"
   | "COMPLETED"
   | "PARTIAL"
   | "FAILED";
 
-
 export type DataSourceLastRun = {
 
-  id:
-    string;
+  id: string;
 
-  status:
-    IngestionRunStatus;
+  status: IngestionRunStatus;
 
-  query:
-    string;
+  query: string;
 
-  requestedLimit:
-    number;
+  requestedLimit: number;
 
-  discoveredCount:
-    number;
+  discoveredCount: number;
 
-  processedCount:
-    number;
+  processedCount: number;
 
-  failedCount:
-    number;
+  failedCount: number;
 
-  startedAt:
-    string;
+  startedAt: string;
 
   completedAt:
     string
@@ -44,29 +34,51 @@ export type DataSourceLastRun = {
 
 };
 
+export type DataSourceSyncResult = {
+
+  runId: string;
+
+  status: IngestionRunStatus;
+
+  query: string;
+
+  requestedLimit: number;
+
+  discoveredCount: number;
+
+  processedCount: number;
+
+  failedCount: number;
+
+  startedAt: string;
+
+  completedAt:
+    string
+    |
+    null;
+
+  lastError:
+    string
+    |
+    null;
+
+};
 
 export type TedDataSourceStatus = {
 
-  source:
-    "TED";
+  source: "TED";
 
-  apiVersion:
-    string;
+  apiVersion: string;
 
-  baseUrl:
-    string;
+  baseUrl: string;
 
-  searchPath:
-    string;
+  searchPath: string;
 
-  authenticationRequired:
-    boolean;
+  authenticationRequired: boolean;
 
-  manualSyncEnabled:
-    boolean;
+  manualSyncEnabled: boolean;
 
-  canonicalNoticeCount:
-    number;
+  canonicalNoticeCount: number;
 
   lastNoticeSeenAt:
     string
@@ -79,33 +91,24 @@ export type TedDataSourceStatus = {
     null;
 
 };
-
 
 export type BoampDataSourceStatus = {
 
-  source:
-    "BOAMP";
+  source: "BOAMP";
 
-  apiVersion:
-    string;
+  apiVersion: string;
 
-  baseUrl:
-    string;
+  baseUrl: string;
 
-  recordsPath:
-    string;
+  recordsPath: string;
 
-  datasetId:
-    string;
+  datasetId: string;
 
-  authenticationRequired:
-    boolean;
+  authenticationRequired: boolean;
 
-  manualSyncEnabled:
-    boolean;
+  manualSyncEnabled: boolean;
 
-  canonicalNoticeCount:
-    number;
+  canonicalNoticeCount: number;
 
   lastNoticeSeenAt:
     string
@@ -119,6 +122,32 @@ export type BoampDataSourceStatus = {
 
 };
 
+export type DecpDataSourceStatus = {
 
-export type DataSourceSyncResult =
-  DataSourceLastRun;
+  source: "DECP";
+
+  apiVersion: string;
+
+  baseUrl: string;
+
+  recordsPath: string;
+
+  datasetId: string;
+
+  authenticationRequired: boolean;
+
+  manualSyncEnabled: boolean;
+
+  canonicalContractCount: number;
+
+  lastContractSeenAt:
+    string
+    |
+    null;
+
+  lastRun:
+    DataSourceLastRun
+    |
+    null;
+
+};

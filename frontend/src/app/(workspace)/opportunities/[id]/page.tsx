@@ -65,6 +65,8 @@ import {
 
   formatEnum,
 
+  formatMoney,
+
   formatValueRange,
 
 } from "@/features/procurement/procurement-format";
@@ -767,6 +769,254 @@ export default function OpportunityDetailPage() {
         </Section>
 
       </div>
+
+
+      {
+        opportunity.award
+
+          ? (
+
+            <Section
+
+              icon={
+                CheckCircle2
+              }
+
+              title="
+                Contract award
+              "
+
+              className="
+                mt-6
+              "
+
+            >
+
+              <div
+                className="
+                  grid
+                  gap-4
+                  md:grid-cols-2
+                  xl:grid-cols-4
+                "
+              >
+
+                <Definition
+                  label="Awarded amount"
+                  value={
+                    opportunity.award.awardedAmount ===
+                    null
+
+                      ? "Not disclosed"
+
+                      : formatMoney(
+                          opportunity.award.awardedAmount,
+                          opportunity.award.currency,
+                        )
+                  }
+                />
+
+                <Definition
+                  label="Notification date"
+                  value={
+                    formatDate(
+                      opportunity.award.notificationDate,
+                    )
+                  }
+                />
+
+                <Definition
+                  label="Duration"
+                  value={
+                    opportunity.award.durationMonths ===
+                    null
+
+                      ? "Not disclosed"
+
+                      : `${opportunity.award.durationMonths} months`
+                  }
+                />
+
+                <Definition
+                  label="Offers received"
+                  value={
+                    opportunity.award.offersReceived ===
+                    null
+
+                      ? "Not disclosed"
+
+                      : opportunity.award.offersReceived.toString()
+                  }
+                />
+
+              </div>
+
+
+              {
+                opportunity.award.suppliers.length >
+                0
+
+                  ? (
+
+                    <div
+                      className="
+                        mt-7
+                      "
+                    >
+
+                      <p
+                        className="
+                          text-[10px]
+                          font-semibold
+                          uppercase
+                          tracking-[0.13em]
+                          text-slate-400
+                        "
+                      >
+
+                        Awarded suppliers
+
+                      </p>
+
+
+                      <div
+                        className="
+                          mt-3
+                          grid
+                          gap-3
+                          md:grid-cols-2
+                        "
+                      >
+
+                        {
+                          opportunity.award.suppliers.map(
+                            (
+                              supplier,
+                              index,
+                            ) => (
+
+                              <div
+
+                                key={
+                                  `${supplier.identifier}-${supplier.legalName}-${index}`
+                                }
+
+                                className="
+                                  rounded-2xl
+                                  border
+                                  border-slate-200
+                                  p-4
+                                "
+
+                              >
+
+                                <p
+                                  className="
+                                    text-sm
+                                    font-semibold
+                                    text-slate-900
+                                  "
+                                >
+
+                                  {
+                                    supplier.legalName
+                                    ??
+                                    supplier.identifier
+                                    ??
+                                    "Awarded supplier"
+                                  }
+
+                                </p>
+
+
+                                <p
+                                  className="
+                                    mt-1
+                                    text-xs
+                                    text-slate-500
+                                  "
+                                >
+
+                                  {
+                                    [
+                                      supplier.identifierType,
+                                      supplier.identifier,
+                                    ]
+                                      .filter(Boolean)
+                                      .join(" · ")
+                                  }
+
+                                </p>
+
+                              </div>
+
+                            ),
+                          )
+                        }
+
+                      </div>
+
+                    </div>
+
+                  )
+
+                  : null
+              }
+
+
+              <div
+                className="
+                  mt-7
+                  grid
+                  gap-4
+                  md:grid-cols-2
+                "
+              >
+
+                <Definition
+                  label="Price form"
+                  value={
+                    opportunity.award.priceForm
+                    ??
+                    "Not disclosed"
+                  }
+                />
+
+                <Definition
+                  label="Framework agreement"
+                  value={
+                    opportunity.award.frameworkAgreementId
+                    ??
+                    "Not specified"
+                  }
+                />
+
+                <Definition
+                  label="Social considerations"
+                  value={
+                    opportunity.award.socialConsiderations
+                    ??
+                    "Not disclosed"
+                  }
+                />
+
+                <Definition
+                  label="Environmental considerations"
+                  value={
+                    opportunity.award.environmentalConsiderations
+                    ??
+                    "Not disclosed"
+                  }
+                />
+
+              </div>
+
+            </Section>
+
+          )
+
+          : null
+      }
 
 
       <Section

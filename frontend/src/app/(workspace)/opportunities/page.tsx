@@ -60,6 +60,8 @@ import {
 
   formatEnum,
 
+  formatMoney,
+
   formatValueRange,
 
 } from "@/features/procurement/procurement-format";
@@ -1384,20 +1386,33 @@ export default function OpportunitiesPage() {
                                 WalletCards
                               }
 
-                              label="
-                                Estimated value
-                              "
+                              label={
+                                opportunity.awardedAmount !==
+                                null
+
+                                  ? "Awarded value"
+
+                                  : "Estimated value"
+                              }
 
                               value={
-                                formatValueRange(
+                                opportunity.awardedAmount !==
+                                null
 
-                                  opportunity.estimatedMinValue,
+                                  ? `Awarded ${formatMoney(
+                                      opportunity.awardedAmount,
+                                      opportunity.awardedCurrency,
+                                    )}`
 
-                                  opportunity.estimatedMaxValue,
+                                  : formatValueRange(
 
-                                  opportunity.currency,
+                                      opportunity.estimatedMinValue,
 
-                                )
+                                      opportunity.estimatedMaxValue,
+
+                                      opportunity.currency,
+
+                                    )
                               }
 
                             />
