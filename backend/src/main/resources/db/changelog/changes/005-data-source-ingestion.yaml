@@ -1,0 +1,93 @@
+databaseChangeLog:
+
+  - changeSet:
+
+      id: 005-data-source-ingestion
+
+      author: tenderpilot
+
+      changes:
+
+        - createTable:
+
+            tableName: data_source_ingestion_runs
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: source
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: status
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: query_text
+                  type: VARCHAR(2000)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: requested_limit
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: discovered_count
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: processed_count
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: failed_count
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: started_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: completed_at
+                  type: TIMESTAMP WITH TIME ZONE
+
+              - column:
+                  name: last_error
+                  type: VARCHAR(1500)
+
+
+        - createIndex:
+
+            tableName: data_source_ingestion_runs
+
+            indexName: idx_ingestion_runs_source_started
+
+            columns:
+
+              - column:
+                  name: source
+
+              - column:
+                  name: started_at

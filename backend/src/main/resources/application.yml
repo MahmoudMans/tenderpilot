@@ -77,7 +77,7 @@ info:
 
     name: TenderPilot
 
-    version: 0.4.0-SNAPSHOT
+    version: 0.5.0-SNAPSHOT
 
 
 
@@ -87,7 +87,7 @@ tenderpilot:
 
     display-name: TenderPilot
 
-    version: 0.4.0-SNAPSHOT
+    version: 0.5.0-SNAPSHOT
 
 
   cors:
@@ -120,3 +120,17 @@ tenderpilot:
     refresh-cookie-name: ${REFRESH_COOKIE_NAME:tenderpilot_refresh}
 
     refresh-cookie-secure: ${REFRESH_COOKIE_SECURE:false}
+
+tenderpilot.ted:
+
+  base-url: ${TED_BASE_URL:https://api.ted.europa.eu}
+
+  search-path: ${TED_SEARCH_PATH:/v3/notices/search}
+
+  default-lookback-days: ${TED_DEFAULT_LOOKBACK_DAYS:7}
+
+  default-limit: ${TED_DEFAULT_LIMIT:25}
+
+  max-limit: ${TED_MAX_LIMIT:100}
+
+  manual-sync-enabled: ${TED_MANUAL_SYNC_ENABLED:true}

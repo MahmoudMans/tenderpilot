@@ -20,4 +20,15 @@ public interface TenderSourceRecordRepository
 
     );
 
+
+    long countBySource(
+            ProcurementSource source
+    );
+
+
+    Optional<TenderSourceRecordEntity>
+    findTop1BySourceOrderByLastSeenAtDesc(
+            ProcurementSource source
+    );
+
 }
