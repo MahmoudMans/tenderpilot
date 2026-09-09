@@ -18,6 +18,8 @@ spring:
 
   liquibase:
 
+    enabled: true
+
     change-log: classpath:/db/changelog/db.changelog-master.yaml
 
 
@@ -33,3 +35,18 @@ tenderpilot:
     ollama:
 
       base-url: http://127.0.0.1:1
+
+
+  security:
+
+    issuer: tenderpilot-test
+
+    access-token-secret: tenderpilot-test-access-token-secret-which-is-long-enough
+
+    access-token-ttl: PT15M
+
+    refresh-token-ttl: P7D
+
+    refresh-cookie-name: tenderpilot_refresh
+
+    refresh-cookie-secure: false

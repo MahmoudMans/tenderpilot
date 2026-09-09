@@ -1,6 +1,8 @@
 import {
-  AppShell,
-} from "@/components/shell/app-shell";
+
+  ProtectedWorkspace,
+
+} from "@/features/auth/protected-workspace";
 
 
 export default function WorkspaceLayout({
@@ -16,13 +18,13 @@ export default function WorkspaceLayout({
 
   return (
 
-    <AppShell>
+    <ProtectedWorkspace>
 
       {
         children
       }
 
-    </AppShell>
+    </ProtectedWorkspace>
 
   );
 

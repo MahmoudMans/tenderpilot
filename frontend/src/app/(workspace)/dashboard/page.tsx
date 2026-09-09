@@ -20,6 +20,11 @@ import {
 } from "@/components/system/system-status-panel";
 
 
+import {
+  IdentitySummary,
+} from "@/components/identity/identity-summary";
+
+
 const foundationItems = [
 
   {
@@ -208,6 +213,9 @@ export default function DashboardPage() {
         </div>
 
       </div>
+
+
+      <IdentitySummary />
 
 
       <div

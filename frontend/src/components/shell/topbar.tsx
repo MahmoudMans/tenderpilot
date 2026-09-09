@@ -1,13 +1,123 @@
+"use client";
+
+
 import {
 
   Bell,
+
+  LogOut,
 
   Search,
 
 } from "lucide-react";
 
 
+import {
+
+  useRouter,
+
+} from "next/navigation";
+
+
+import {
+
+  useState,
+
+} from "react";
+
+
+import {
+
+  useAuth,
+
+} from "@/features/auth/auth-context";
+
+
+function initials(
+  value:
+    string,
+) {
+
+  return value
+    .split(
+      /\s+/,
+    )
+    .filter(
+      Boolean,
+    )
+    .slice(
+      0,
+      2,
+    )
+    .map(
+      (
+        part,
+      ) =>
+        part.charAt(
+          0,
+        ),
+    )
+    .join(
+      "",
+    )
+    .toUpperCase();
+
+}
+
+
 export function Topbar() {
+
+  const router =
+    useRouter();
+
+
+  const {
+
+    user,
+
+    logout,
+
+  } = useAuth();
+
+
+  const [
+
+    signingOut,
+
+    setSigningOut,
+
+  ] = useState(
+    false,
+  );
+
+
+  async function signOut() {
+
+    setSigningOut(
+      true,
+    );
+
+
+    try {
+
+      await logout();
+
+
+      router.replace(
+        "/login",
+      );
+
+
+    } finally {
+
+      setSigningOut(
+        false,
+      );
+
+    }
+
+  }
+
 
   return (
 
@@ -25,7 +135,6 @@ export function Topbar() {
         md:px-8
       "
     >
-
 
       <div
         className="
@@ -79,7 +188,7 @@ export function Topbar() {
           "
 
           title="
-            Global search will be activated with the OpenSearch phase.
+            Global search will activate during the OpenSearch phase.
           "
 
         />
@@ -95,7 +204,6 @@ export function Topbar() {
           gap-3
         "
       >
-
 
         <button
 
@@ -150,13 +258,21 @@ export function Topbar() {
               place-items-center
               rounded-lg
               bg-[#14213d]
-              text-xs
+              text-[11px]
               font-semibold
               text-white
             "
           >
 
-            TP
+            {
+              user
+
+                ? initials(
+                    user.fullName,
+                  )
+
+                : "TP"
+            }
 
           </div>
 
@@ -170,29 +286,89 @@ export function Topbar() {
 
             <p
               className="
+                max-w-40
+                truncate
                 text-xs
                 font-semibold
                 text-slate-800
               "
             >
 
-              Development Workspace
+              {
+                user?.fullName
+                ??
+                "TenderPilot"
+              }
 
             </p>
 
 
             <p
               className="
+                max-w-40
+                truncate
                 text-[11px]
                 text-slate-500
               "
             >
 
-              Foundation
+              {
+                user?.organization.name
+                ??
+                ""
+              }
 
             </p>
 
           </div>
+
+
+          <button
+
+            type="button"
+
+            disabled={
+              signingOut
+            }
+
+            onClick={
+              () => {
+
+                void signOut();
+
+              }
+            }
+
+            aria-label="
+              Sign out
+            "
+
+            title="
+              Sign out
+            "
+
+            className="
+              ml-1
+              grid
+              size-8
+              place-items-center
+              rounded-lg
+              text-slate-400
+              transition
+              hover:bg-slate-50
+              hover:text-slate-700
+              disabled:opacity-50
+            "
+
+          >
+
+            <LogOut
+              className="
+                size-4
+              "
+            />
+
+          </button>
 
         </div>
 

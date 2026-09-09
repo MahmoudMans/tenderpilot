@@ -2,6 +2,10 @@ import type {
   Metadata,
 } from "next";
 
+import {
+  AuthProvider,
+} from "@/features/auth/auth-context";
+
 import "./globals.css";
 
 
@@ -42,7 +46,13 @@ export default function RootLayout({
 
       <body>
 
-        {children}
+        <AuthProvider>
+
+          {
+            children
+          }
+
+        </AuthProvider>
 
       </body>
 

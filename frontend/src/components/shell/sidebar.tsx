@@ -13,6 +13,8 @@ import {
 
   LayoutDashboard,
 
+  UsersRound,
+
 } from "lucide-react";
 
 
@@ -23,6 +25,11 @@ import Link
 import {
   usePathname,
 } from "next/navigation";
+
+
+import {
+  useAuth,
+} from "@/features/auth/auth-context";
 
 
 const navigation = [
@@ -40,7 +47,6 @@ const navigation = [
 
   },
 
-
   {
 
     label:
@@ -53,7 +59,6 @@ const navigation = [
       FileSearch,
 
   },
-
 
   {
 
@@ -68,7 +73,6 @@ const navigation = [
 
   },
 
-
   {
 
     label:
@@ -82,6 +86,18 @@ const navigation = [
 
   },
 
+  {
+
+    label:
+      "Organization",
+
+    href:
+      "/organization",
+
+    icon:
+      UsersRound,
+
+  },
 
   {
 
@@ -99,10 +115,39 @@ const navigation = [
 ];
 
 
+function roleLabel(
+  role:
+    string,
+) {
+
+  return role
+    .toLowerCase()
+    .replaceAll(
+      "_",
+      " ",
+    )
+    .replace(
+      /\b\w/g,
+      (
+        letter,
+      ) =>
+        letter.toUpperCase(),
+    );
+
+}
+
+
 export function Sidebar() {
 
   const pathname =
     usePathname();
+
+
+  const {
+
+    user,
+
+  } = useAuth();
 
 
   return (
@@ -122,7 +167,6 @@ export function Sidebar() {
         lg:flex-col
       "
     >
-
 
       <div
         className="
@@ -192,74 +236,76 @@ export function Sidebar() {
         "
       >
 
-        {navigation.map(
-          (
-            item,
-          ) => {
+        {
+          navigation.map(
+            (
+              item,
+            ) => {
 
-            const Icon =
-              item.icon;
+              const Icon =
+                item.icon;
 
 
-            const active =
+              const active =
 
-              pathname ===
-              item.href
+                pathname ===
+                item.href
 
-              ||
+                ||
 
-              pathname.startsWith(
-                `${item.href}/`,
+                pathname.startsWith(
+                  `${item.href}/`,
+                );
+
+
+              return (
+
+                <Link
+
+                  key={
+                    item.href
+                  }
+
+                  href={
+                    item.href
+                  }
+
+                  className={[
+
+                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+
+                    active
+
+                      ? "bg-[#edf4ff] text-[#245fcd]"
+
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-950",
+
+                  ].join(
+                    " ",
+                  )}
+
+                >
+
+                  <Icon
+                    className="
+                      size-[18px]
+                    "
+                    strokeWidth={
+                      1.9
+                    }
+                  />
+
+                  {
+                    item.label
+                  }
+
+                </Link>
+
               );
 
-
-            return (
-
-              <Link
-
-                key={
-                  item.href
-                }
-
-                href={
-                  item.href
-                }
-
-                className={[
-
-                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-
-                  active
-
-                    ? "bg-[#edf4ff] text-[#245fcd]"
-
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-950",
-
-                ].join(
-                  " ",
-                )}
-
-              >
-
-                <Icon
-                  className="
-                    size-[18px]
-                  "
-                  strokeWidth={
-                    1.9
-                  }
-                />
-
-                {
-                  item.label
-                }
-
-              </Link>
-
-            );
-
-          },
-        )}
+            },
+          )
+        }
 
       </nav>
 
@@ -277,46 +323,82 @@ export function Sidebar() {
 
         <p
           className="
-            text-xs
+            truncate
+            text-sm
             font-semibold
-            uppercase
-            tracking-[0.16em]
-            text-slate-400
+            text-slate-900
           "
         >
 
-          Development mode
+          {
+            user?.organization.name
+            ??
+            "Organization"
+          }
 
         </p>
 
 
-        <p
+        <div
           className="
             mt-2
-            text-sm
-            font-medium
-            text-slate-800
+            flex
+            items-center
+            justify-between
+            gap-3
           "
         >
 
-          Zero paid services
+          <p
+            className="
+              truncate
+              text-xs
+              text-slate-500
+            "
+          >
 
-        </p>
+            {
+              user?.email
+              ??
+              ""
+            }
+
+          </p>
 
 
-        <p
-          className="
-            mt-1
-            text-xs
-            leading-5
-            text-slate-500
-          "
-        >
+          {
+            user
 
-          Local database, search,
-          AI and document processing.
+              ? (
 
-        </p>
+                <span
+                  className="
+                    shrink-0
+                    rounded-full
+                    bg-white
+                    px-2
+                    py-1
+                    text-[10px]
+                    font-semibold
+                    text-slate-600
+                    shadow-sm
+                  "
+                >
+
+                  {
+                    roleLabel(
+                      user.role,
+                    )
+                  }
+
+                </span>
+
+              )
+
+              : null
+          }
+
+        </div>
 
       </div>
 
