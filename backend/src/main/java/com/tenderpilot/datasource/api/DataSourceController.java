@@ -1,5 +1,7 @@
 package com.tenderpilot.datasource.api;
 
+import com.tenderpilot.datasource.application.BoampDataSourceService;
+import com.tenderpilot.datasource.application.BoampIngestionService;
 import com.tenderpilot.datasource.application.TedDataSourceService;
 import com.tenderpilot.datasource.application.TedIngestionService;
 
@@ -25,11 +27,23 @@ public class DataSourceController {
             tedIngestionService;
 
 
+    private final BoampDataSourceService
+            boampDataSourceService;
+
+
+    private final BoampIngestionService
+            boampIngestionService;
+
+
     public DataSourceController(
 
             TedDataSourceService tedDataSourceService,
 
-            TedIngestionService tedIngestionService
+            TedIngestionService tedIngestionService,
+
+            BoampDataSourceService boampDataSourceService,
+
+            BoampIngestionService boampIngestionService
 
     ) {
 
@@ -38,6 +52,12 @@ public class DataSourceController {
 
         this.tedIngestionService =
                 tedIngestionService;
+
+        this.boampDataSourceService =
+                boampDataSourceService;
+
+        this.boampIngestionService =
+                boampIngestionService;
 
     }
 
@@ -75,6 +95,50 @@ public class DataSourceController {
     ) {
 
         return tedIngestionService
+                .syncRecent(
+
+                        days,
+
+                        limit
+
+                );
+
+    }
+
+
+    @GetMapping(
+            "/boamp"
+    )
+    public BoampDataSourceStatusResponse boampStatus() {
+
+        return boampDataSourceService
+                .status();
+
+    }
+
+
+    @PostMapping(
+            "/boamp/sync"
+    )
+    @PreAuthorize(
+            "hasRole('OWNER')"
+    )
+    public BoampSyncResponse syncBoamp(
+
+            @RequestParam(
+                    defaultValue = "7"
+            )
+            int days,
+
+
+            @RequestParam(
+                    defaultValue = "25"
+            )
+            int limit
+
+    ) {
+
+        return boampIngestionService
                 .syncRecent(
 
                         days,

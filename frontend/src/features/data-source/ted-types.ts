@@ -6,7 +6,7 @@ export type IngestionRunStatus =
   | "FAILED";
 
 
-export type TedLastRun = {
+export type DataSourceLastRun = {
 
   id:
     string;
@@ -74,11 +74,51 @@ export type TedDataSourceStatus = {
     null;
 
   lastRun:
-    TedLastRun
+    DataSourceLastRun
     |
     null;
 
 };
 
 
-export type TedSyncResult = TedLastRun;
+export type BoampDataSourceStatus = {
+
+  source:
+    "BOAMP";
+
+  apiVersion:
+    string;
+
+  baseUrl:
+    string;
+
+  recordsPath:
+    string;
+
+  datasetId:
+    string;
+
+  authenticationRequired:
+    boolean;
+
+  manualSyncEnabled:
+    boolean;
+
+  canonicalNoticeCount:
+    number;
+
+  lastNoticeSeenAt:
+    string
+    |
+    null;
+
+  lastRun:
+    DataSourceLastRun
+    |
+    null;
+
+};
+
+
+export type DataSourceSyncResult =
+  DataSourceLastRun;
