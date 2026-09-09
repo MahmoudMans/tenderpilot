@@ -1,0 +1,563 @@
+databaseChangeLog:
+
+  - changeSet:
+
+      id: 003-company-profile
+
+      author: tenderpilot
+
+      changes:
+
+        - createTable:
+
+            tableName: company_profiles
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: organization_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: legal_name
+                  type: VARCHAR(220)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: trading_name
+                  type: VARCHAR(220)
+
+              - column:
+                  name: industry
+                  type: VARCHAR(180)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: description
+                  type: VARCHAR(3000)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: website_url
+                  type: VARCHAR(500)
+
+              - column:
+                  name: country_code
+                  type: VARCHAR(2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: headquarters_city
+                  type: VARCHAR(160)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: employee_band
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: annual_revenue_band
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: preferred_min_contract_value
+                  type: DECIMAL(19,2)
+
+              - column:
+                  name: preferred_max_contract_value
+                  type: DECIMAL(19,2)
+
+              - column:
+                  name: preferred_currency
+                  type: VARCHAR(3)
+
+              - column:
+                  name: years_experience
+                  type: INTEGER
+
+              - column:
+                  name: minimum_notice_days
+                  type: INTEGER
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addUniqueConstraint:
+
+            tableName: company_profiles
+
+            columnNames: organization_id
+
+            constraintName: uk_company_profiles_organization
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: company_profiles
+
+            baseColumnNames: organization_id
+
+            referencedTableName: organizations
+
+            referencedColumnNames: id
+
+            constraintName: fk_company_profiles_organization
+
+            onDelete: CASCADE
+
+
+        - createTable:
+
+            tableName: company_capabilities
+
+            columns:
+
+              - column:
+                  name: profile_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: capability_name
+                  type: VARCHAR(180)
+                  constraints:
+                    nullable: false
+
+
+        - addPrimaryKey:
+
+            tableName: company_capabilities
+
+            columnNames: profile_id,position
+
+            constraintName: pk_company_capabilities
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: company_capabilities
+
+            baseColumnNames: profile_id
+
+            referencedTableName: company_profiles
+
+            referencedColumnNames: id
+
+            constraintName: fk_company_capabilities_profile
+
+            onDelete: CASCADE
+
+
+        - createTable:
+
+            tableName: company_operating_regions
+
+            columns:
+
+              - column:
+                  name: profile_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: country_code
+                  type: VARCHAR(2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: region_code
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: region_name
+                  type: VARCHAR(160)
+                  constraints:
+                    nullable: false
+
+
+        - addPrimaryKey:
+
+            tableName: company_operating_regions
+
+            columnNames: profile_id,position
+
+            constraintName: pk_company_operating_regions
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: company_operating_regions
+
+            baseColumnNames: profile_id
+
+            referencedTableName: company_profiles
+
+            referencedColumnNames: id
+
+            constraintName: fk_company_operating_regions_profile
+
+            onDelete: CASCADE
+
+
+        - createTable:
+
+            tableName: company_target_cpvs
+
+            columns:
+
+              - column:
+                  name: profile_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: cpv_code
+                  type: VARCHAR(8)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: cpv_label
+                  type: VARCHAR(300)
+                  constraints:
+                    nullable: false
+
+
+        - addPrimaryKey:
+
+            tableName: company_target_cpvs
+
+            columnNames: profile_id,position
+
+            constraintName: pk_company_target_cpvs
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: company_target_cpvs
+
+            baseColumnNames: profile_id
+
+            referencedTableName: company_profiles
+
+            referencedColumnNames: id
+
+            constraintName: fk_company_target_cpvs_profile
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: company_target_cpvs
+
+            indexName: idx_company_target_cpvs_code
+
+            columns:
+
+              - column:
+                  name: cpv_code
+
+
+        - createTable:
+
+            tableName: company_certifications
+
+            columns:
+
+              - column:
+                  name: profile_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: certification_name
+                  type: VARCHAR(180)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: issuer
+                  type: VARCHAR(180)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: certificate_number
+                  type: VARCHAR(160)
+
+              - column:
+                  name: valid_from
+                  type: DATE
+
+              - column:
+                  name: expires_on
+                  type: DATE
+
+
+        - addPrimaryKey:
+
+            tableName: company_certifications
+
+            columnNames: profile_id,position
+
+            constraintName: pk_company_certifications
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: company_certifications
+
+            baseColumnNames: profile_id
+
+            referencedTableName: company_profiles
+
+            referencedColumnNames: id
+
+            constraintName: fk_company_certifications_profile
+
+            onDelete: CASCADE
+
+
+        - createTable:
+
+            tableName: company_reference_projects
+
+            columns:
+
+              - column:
+                  name: profile_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: project_name
+                  type: VARCHAR(220)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: client_name
+                  type: VARCHAR(220)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: country_code
+                  type: VARCHAR(2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: region_name
+                  type: VARCHAR(160)
+
+              - column:
+                  name: contract_value
+                  type: DECIMAL(19,2)
+
+              - column:
+                  name: currency
+                  type: VARCHAR(3)
+
+              - column:
+                  name: started_on
+                  type: DATE
+
+              - column:
+                  name: completed_on
+                  type: DATE
+
+              - column:
+                  name: project_description
+                  type: VARCHAR(3000)
+                  constraints:
+                    nullable: false
+
+
+        - addPrimaryKey:
+
+            tableName: company_reference_projects
+
+            columnNames: profile_id,position
+
+            constraintName: pk_company_reference_projects
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: company_reference_projects
+
+            baseColumnNames: profile_id
+
+            referencedTableName: company_profiles
+
+            referencedColumnNames: id
+
+            constraintName: fk_company_reference_projects_profile
+
+            onDelete: CASCADE
+
+
+        - createTable:
+
+            tableName: company_preferred_buyer_types
+
+            columns:
+
+              - column:
+                  name: profile_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: buyer_type
+                  type: VARCHAR(80)
+                  constraints:
+                    nullable: false
+
+
+        - addPrimaryKey:
+
+            tableName: company_preferred_buyer_types
+
+            columnNames: profile_id,position
+
+            constraintName: pk_company_preferred_buyer_types
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: company_preferred_buyer_types
+
+            baseColumnNames: profile_id
+
+            referencedTableName: company_profiles
+
+            referencedColumnNames: id
+
+            constraintName: fk_company_preferred_buyer_types_profile
+
+            onDelete: CASCADE
+
+
+        - createTable:
+
+            tableName: company_excluded_keywords
+
+            columns:
+
+              - column:
+                  name: profile_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: keyword
+                  type: VARCHAR(180)
+                  constraints:
+                    nullable: false
+
+
+        - addPrimaryKey:
+
+            tableName: company_excluded_keywords
+
+            columnNames: profile_id,position
+
+            constraintName: pk_company_excluded_keywords
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: company_excluded_keywords
+
+            baseColumnNames: profile_id
+
+            referencedTableName: company_profiles
+
+            referencedColumnNames: id
+
+            constraintName: fk_company_excluded_keywords_profile
+
+            onDelete: CASCADE

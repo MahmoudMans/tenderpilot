@@ -3,6 +3,7 @@ package com.tenderpilot.common.api;
 import com.tenderpilot.common.domain.ApiAuthenticationException;
 import com.tenderpilot.common.domain.ConflictException;
 import com.tenderpilot.common.domain.ForbiddenOperationException;
+import com.tenderpilot.common.domain.InvalidRequestException;
 import com.tenderpilot.common.domain.ResourceNotFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -86,6 +87,32 @@ public class ApiExceptionHandler {
         return response(
 
                 HttpStatus.FORBIDDEN,
+
+                exception.getMessage(),
+
+                request,
+
+                List.of()
+
+        );
+
+    }
+
+
+    @ExceptionHandler(
+            InvalidRequestException.class
+    )
+    ResponseEntity<ApiErrorResponse> invalidRequest(
+
+            InvalidRequestException exception,
+
+            HttpServletRequest request
+
+    ) {
+
+        return response(
+
+                HttpStatus.BAD_REQUEST,
 
                 exception.getMessage(),
 
