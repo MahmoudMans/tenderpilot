@@ -1,0 +1,27 @@
+# macOS / editors
+.DS_Store
+.idea/
+.vscode/
+*.iml
+
+# Environment
+.env
+.env.*
+!.env.example
+frontend/.env*
+!frontend/.env.example
+
+# Backend
+backend/target/
+*.log
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/coverage/
+frontend/tsconfig.tsbuildinfo
+
+# Local runtime data
+data/
+tmp/

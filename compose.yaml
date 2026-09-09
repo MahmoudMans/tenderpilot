@@ -1,0 +1,73 @@
+name: tenderpilot
+
+services:
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: tenderpilot-postgres
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tenderpilot}
+      POSTGRES_USER: ${POSTGRES_USER:-tenderpilot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tenderpilot_dev}
+
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-55432}:5432"
+
+    volumes:
+      - tenderpilot-postgres-data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${POSTGRES_USER:-tenderpilot} -d ${POSTGRES_DB:-tenderpilot}
+
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+    networks:
+      - tenderpilot
+
+
+  opensearch:
+    image: opensearchproject/opensearch:3.8.0
+    container_name: tenderpilot-opensearch
+
+    environment:
+      discovery.type: single-node
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      DISABLE_SECURITY_PLUGIN: "true"
+      bootstrap.memory_lock: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+
+    ports:
+      - "127.0.0.1:${OPENSEARCH_PORT:-19200}:9200"
+
+    volumes:
+      - tenderpilot-opensearch-data:/usr/share/opensearch/data
+
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+      nofile:
+        soft: 65536
+        hard: 65536
+
+    networks:
+      - tenderpilot
+
+
+volumes:
+
+  tenderpilot-postgres-data:
+
+  tenderpilot-opensearch-data:
+
+
+networks:
+
+  tenderpilot:
+    driver: bridge
