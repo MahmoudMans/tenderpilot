@@ -1,3 +1,19 @@
+export type DataQualityGrade =
+
+  | "EXCELLENT"
+  | "GOOD"
+  | "FAIR"
+  | "POOR"
+  | "CRITICAL";
+
+
+export type DataQualitySeverity =
+
+  | "CRITICAL"
+  | "WARNING"
+  | "INFO";
+
+
 export type ProcurementSource =
   | "TED"
   | "BOAMP"
@@ -107,6 +123,19 @@ export type OpportunitySummary = {
     |
     null;
 
+  dataQualityScore:
+    number
+    |
+    null;
+
+  dataQualityGrade:
+    DataQualityGrade
+    |
+    null;
+
+  dataQualityIssueCount:
+    number;
+
 };
 
 export type OpportunityDetail = {
@@ -206,6 +235,46 @@ export type OpportunityDetail = {
     firstSeenAt: string;
     lastSeenAt: string;
   }>;
+
+  quality:
+    {
+      score:
+        number;
+
+      grade:
+        DataQualityGrade;
+
+      criticalIssueCount:
+        number;
+
+      warningIssueCount:
+        number;
+
+      infoIssueCount:
+        number;
+
+      assessedAt:
+        string;
+
+      issues: Array<{
+
+        code:
+          string;
+
+        severity:
+          DataQualitySeverity;
+
+        fieldName:
+          string;
+
+        message:
+          string;
+
+      }>;
+    }
+    |
+    null;
+
 
   award:
     {

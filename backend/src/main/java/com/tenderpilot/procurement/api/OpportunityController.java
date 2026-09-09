@@ -5,6 +5,8 @@ import com.tenderpilot.procurement.application.OpportunityQueryService;
 import com.tenderpilot.procurement.domain.ProcurementSource;
 import com.tenderpilot.procurement.domain.ProcurementStatus;
 
+import com.tenderpilot.procurement.quality.domain.DataQualityGrade;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +32,6 @@ public class OpportunityController {
 
         this.opportunityQueryService =
                 opportunityQueryService;
-
     }
 
 
@@ -52,21 +53,30 @@ public class OpportunityController {
             @RequestParam(
                     required = false
             )
-            ProcurementSource source
+            ProcurementSource source,
+
+
+            @RequestParam(
+                    required = false
+            )
+            Integer minQualityScore,
+
+
+            @RequestParam(
+                    required = false
+            )
+            DataQualityGrade qualityGrade
 
     ) {
 
         return opportunityQueryService
                 .list(
-
                         q,
-
                         status,
-
-                        source
-
+                        source,
+                        minQualityScore,
+                        qualityGrade
                 );
-
     }
 
 
@@ -74,17 +84,14 @@ public class OpportunityController {
             "/{id}"
     )
     public OpportunityDetailResponse detail(
-
             @PathVariable
             UUID id
-
     ) {
 
         return opportunityQueryService
                 .detail(
                         id
                 );
-
     }
 
 }

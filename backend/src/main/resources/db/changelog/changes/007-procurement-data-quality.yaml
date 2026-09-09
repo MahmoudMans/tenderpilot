@@ -1,0 +1,203 @@
+databaseChangeLog:
+
+  - changeSet:
+
+      id: 007-procurement-data-quality
+
+      author: tenderpilot
+
+      changes:
+
+        - createTable:
+
+            tableName: procurement_data_quality_assessments
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: score
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: grade
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: critical_issue_count
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: warning_issue_count
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: info_issue_count
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: assessed_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addUniqueConstraint:
+
+            tableName: procurement_data_quality_assessments
+
+            columnNames: tender_id
+
+            constraintName: uk_procurement_quality_tender
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: procurement_data_quality_assessments
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_procurement_quality_tender
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: procurement_data_quality_assessments
+
+            indexName: idx_procurement_quality_score
+
+            columns:
+
+              - column:
+                  name: score
+
+
+        - createIndex:
+
+            tableName: procurement_data_quality_assessments
+
+            indexName: idx_procurement_quality_grade
+
+            columns:
+
+              - column:
+                  name: grade
+
+
+        - createTable:
+
+            tableName: procurement_data_quality_issues
+
+            columns:
+
+              - column:
+                  name: assessment_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: issue_code
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: severity
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: field_name
+                  type: VARCHAR(160)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: message
+                  type: VARCHAR(800)
+                  constraints:
+                    nullable: false
+
+
+        - addPrimaryKey:
+
+            tableName: procurement_data_quality_issues
+
+            columnNames: assessment_id,position
+
+            constraintName: pk_procurement_data_quality_issues
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: procurement_data_quality_issues
+
+            baseColumnNames: assessment_id
+
+            referencedTableName: procurement_data_quality_assessments
+
+            referencedColumnNames: id
+
+            constraintName: fk_procurement_data_quality_issue_assessment
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: procurement_data_quality_issues
+
+            indexName: idx_procurement_quality_issue_code
+
+            columns:
+
+              - column:
+                  name: issue_code

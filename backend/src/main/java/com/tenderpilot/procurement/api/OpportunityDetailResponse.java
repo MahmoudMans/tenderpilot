@@ -6,6 +6,10 @@ import com.tenderpilot.procurement.domain.ProcurementProcedure;
 import com.tenderpilot.procurement.domain.ProcurementSource;
 import com.tenderpilot.procurement.domain.ProcurementStatus;
 
+import com.tenderpilot.procurement.quality.domain.DataQualityGrade;
+import com.tenderpilot.procurement.quality.domain.DataQualityIssueCode;
+import com.tenderpilot.procurement.quality.domain.DataQualitySeverity;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -60,7 +64,9 @@ public record OpportunityDetailResponse(
 
         List<SourceResponse> sources,
 
-        AwardResponse award
+        AwardResponse award,
+
+        DataQualityResponse quality
 
 ) {
 
@@ -75,11 +81,13 @@ public record OpportunityDetailResponse(
     ) {
     }
 
+
     public record CpvResponse(
             String code,
             String label
     ) {
     }
+
 
     public record LocationResponse(
             String countryCode,
@@ -88,6 +96,7 @@ public record OpportunityDetailResponse(
             String city
     ) {
     }
+
 
     public record LotResponse(
             UUID id,
@@ -101,6 +110,7 @@ public record OpportunityDetailResponse(
     ) {
     }
 
+
     public record SourceResponse(
             ProcurementSource source,
             String externalId,
@@ -113,6 +123,7 @@ public record OpportunityDetailResponse(
             Instant lastSeenAt
     ) {
     }
+
 
     public record AwardResponse(
             LocalDate notificationDate,
@@ -131,10 +142,33 @@ public record OpportunityDetailResponse(
     ) {
     }
 
+
     public record AwardSupplierResponse(
             String identifier,
             String identifierType,
             String legalName
     ) {
     }
+
+
+    public record DataQualityResponse(
+            int score,
+            DataQualityGrade grade,
+            int criticalIssueCount,
+            int warningIssueCount,
+            int infoIssueCount,
+            Instant assessedAt,
+            List<DataQualityIssueResponse> issues
+    ) {
+    }
+
+
+    public record DataQualityIssueResponse(
+            DataQualityIssueCode code,
+            DataQualitySeverity severity,
+            String fieldName,
+            String message
+    ) {
+    }
+
 }

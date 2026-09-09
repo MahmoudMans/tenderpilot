@@ -15,6 +15,11 @@ import com.tenderpilot.procurement.domain.TenderEntity;
 
 import com.tenderpilot.procurement.infrastructure.TenderRepository;
 
+import com.tenderpilot.procurement.quality.domain.DataQualityGrade;
+import com.tenderpilot.procurement.quality.domain.ProcurementDataQualityAssessmentEntity;
+
+import com.tenderpilot.procurement.quality.infrastructure.ProcurementDataQualityAssessmentRepository;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -28,19 +33,32 @@ public class OpportunityQueryService {
     private final TenderRepository
             tenderRepository;
 
+
     private final TenderAwardRepository
             awardRepository;
 
+
+    private final ProcurementDataQualityAssessmentRepository
+            qualityRepository;
+
+
     public OpportunityQueryService(
             TenderRepository tenderRepository,
-            TenderAwardRepository awardRepository
+            TenderAwardRepository awardRepository,
+            ProcurementDataQualityAssessmentRepository
+                    qualityRepository
     ) {
+
         this.tenderRepository =
                 tenderRepository;
 
         this.awardRepository =
                 awardRepository;
+
+        this.qualityRepository =
+                qualityRepository;
     }
+
 
     @Transactional(readOnly = true)
     public List<OpportunitySummaryResponse> list(
@@ -49,12 +67,34 @@ public class OpportunityQueryService {
             ProcurementSource source
     ) {
 
+        return list(
+                query,
+                status,
+                source,
+                null,
+                null
+        );
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<OpportunitySummaryResponse> list(
+            String query,
+            ProcurementStatus status,
+            ProcurementSource source,
+            Integer minQualityScore,
+            DataQualityGrade qualityGrade
+    ) {
+
         String normalizedQuery =
                 query == null
                         ? null
                         : query
                                 .trim()
-                                .toLowerCase(Locale.ROOT);
+                                .toLowerCase(
+                                        Locale.ROOT
+                                );
+
 
         return tenderRepository
                 .findTop100ByOrderByPublicationDateDesc()
@@ -92,9 +132,22 @@ public class OpportunityQueryService {
                                 )
                 )
 
-                .map(this::summary)
+                .filter(
+                        tender ->
+                                matchesQuality(
+                                        tender,
+                                        minQualityScore,
+                                        qualityGrade
+                                )
+                )
+
+                .map(
+                        this::summary
+                )
+
                 .toList();
     }
+
 
     @Transactional(readOnly = true)
     public OpportunityDetailResponse detail(
@@ -103,7 +156,9 @@ public class OpportunityQueryService {
 
         TenderEntity tender =
                 tenderRepository
-                        .findById(id)
+                        .findById(
+                                id
+                        )
                         .orElseThrow(
                                 () ->
                                         new ResourceNotFoundException(
@@ -111,8 +166,12 @@ public class OpportunityQueryService {
                                         )
                         );
 
-        return detailResponse(tender);
+
+        return detailResponse(
+                tender
+        );
     }
+
 
     private boolean matchesText(
             TenderEntity tender,
@@ -127,22 +186,33 @@ public class OpportunityQueryService {
             return true;
         }
 
+
         if (
                 tender.getTitle()
-                        .toLowerCase(Locale.ROOT)
-                        .contains(query)
+                        .toLowerCase(
+                                Locale.ROOT
+                        )
+                        .contains(
+                                query
+                        )
         ) {
             return true;
         }
 
+
         if (
                 tender.getBuyer()
                         .getLegalName()
-                        .toLowerCase(Locale.ROOT)
-                        .contains(query)
+                        .toLowerCase(
+                                Locale.ROOT
+                        )
+                        .contains(
+                                query
+                        )
         ) {
             return true;
         }
+
 
         return tender
                 .getCpvs()
@@ -150,15 +220,69 @@ public class OpportunityQueryService {
                 .anyMatch(
                         cpv ->
                                 cpv.getCode()
-                                        .contains(query)
+                                        .contains(
+                                                query
+                                        )
                                 ||
                                 cpv.getLabel()
                                         .toLowerCase(
                                                 Locale.ROOT
                                         )
-                                        .contains(query)
+                                        .contains(
+                                                query
+                                        )
                 );
     }
+
+
+    private boolean matchesQuality(
+            TenderEntity tender,
+            Integer minQualityScore,
+            DataQualityGrade grade
+    ) {
+
+        if (
+                minQualityScore == null
+                &&
+                grade == null
+        ) {
+            return true;
+        }
+
+
+        ProcurementDataQualityAssessmentEntity quality =
+                qualityRepository
+                        .findByTender_Id(
+                                tender.getId()
+                        )
+                        .orElse(
+                                null
+                        );
+
+
+        if (quality == null) {
+            return false;
+        }
+
+
+        if (
+                minQualityScore != null
+                &&
+                quality.getScore()
+                        <
+                        minQualityScore
+        ) {
+            return false;
+        }
+
+
+        return grade == null
+                ||
+                quality.getGrade()
+                        ==
+                        grade;
+    }
+
 
     private OpportunitySummaryResponse summary(
             TenderEntity tender
@@ -169,12 +293,27 @@ public class OpportunityQueryService {
                         .findByTender_Id(
                                 tender.getId()
                         )
-                        .orElse(null);
+                        .orElse(
+                                null
+                        );
+
+
+        ProcurementDataQualityAssessmentEntity quality =
+                qualityRepository
+                        .findByTender_Id(
+                                tender.getId()
+                        )
+                        .orElse(
+                                null
+                        );
+
 
         return new OpportunitySummaryResponse(
                 tender.getId(),
                 tender.getTitle(),
-                tender.getBuyer().getLegalName(),
+                tender
+                        .getBuyer()
+                        .getLegalName(),
                 tender.getStatus(),
                 tender.getProcedureType(),
                 tender.getContractNature(),
@@ -189,7 +328,9 @@ public class OpportunityQueryService {
                 tender
                         .getCpvs()
                         .stream()
-                        .limit(3)
+                        .limit(
+                                3
+                        )
                         .map(
                                 cpv ->
                                         new OpportunitySummaryResponse
@@ -210,7 +351,9 @@ public class OpportunityQueryService {
                         .distinct()
                         .toList(),
 
-                tender.getLots().size(),
+                tender
+                        .getLots()
+                        .size(),
 
                 award == null
                         ? null
@@ -218,9 +361,22 @@ public class OpportunityQueryService {
 
                 award == null
                         ? null
-                        : award.getCurrency()
+                        : award.getCurrency(),
+
+                quality == null
+                        ? null
+                        : quality.getScore(),
+
+                quality == null
+                        ? null
+                        : quality.getGrade(),
+
+                quality == null
+                        ? 0
+                        : quality.getIssueCount()
         );
     }
+
 
     private OpportunityDetailResponse detailResponse(
             TenderEntity tender
@@ -248,19 +404,35 @@ public class OpportunityQueryService {
 
                 new OpportunityDetailResponse
                         .BuyerResponse(
-                                tender.getBuyer().getId(),
-                                tender.getBuyer().getLegalName(),
-                                tender.getBuyer().getCategory(),
-                                tender.getBuyer().getCountryCode(),
-                                tender.getBuyer().getCity(),
-                                tender.getBuyer().getRegistrationNumber(),
-                                tender.getBuyer().getWebsiteUrl()
+                                tender
+                                        .getBuyer()
+                                        .getId(),
+                                tender
+                                        .getBuyer()
+                                        .getLegalName(),
+                                tender
+                                        .getBuyer()
+                                        .getCategory(),
+                                tender
+                                        .getBuyer()
+                                        .getCountryCode(),
+                                tender
+                                        .getBuyer()
+                                        .getCity(),
+                                tender
+                                        .getBuyer()
+                                        .getRegistrationNumber(),
+                                tender
+                                        .getBuyer()
+                                        .getWebsiteUrl()
                         ),
 
                 tender
                         .getCpvs()
                         .stream()
-                        .map(this::cpv)
+                        .map(
+                                this::cpv
+                        )
                         .toList(),
 
                 tender
@@ -295,7 +467,9 @@ public class OpportunityQueryService {
                                                         lot
                                                                 .getCpvs()
                                                                 .stream()
-                                                                .map(this::cpv)
+                                                                .map(
+                                                                        this::cpv
+                                                                )
                                                                 .toList()
                                                 )
                         )
@@ -323,9 +497,14 @@ public class OpportunityQueryService {
 
                 awardResponse(
                         tender.getId()
+                ),
+
+                qualityResponse(
+                        tender.getId()
                 )
         );
     }
+
 
     private OpportunityDetailResponse.AwardResponse
     awardResponse(
@@ -334,12 +513,18 @@ public class OpportunityQueryService {
 
         TenderAwardEntity award =
                 awardRepository
-                        .findByTender_Id(tenderId)
-                        .orElse(null);
+                        .findByTender_Id(
+                                tenderId
+                        )
+                        .orElse(
+                                null
+                        );
+
 
         if (award == null) {
             return null;
         }
+
 
         return new OpportunityDetailResponse
                 .AwardResponse(
@@ -372,6 +557,54 @@ public class OpportunityQueryService {
                 );
     }
 
+
+    private OpportunityDetailResponse.DataQualityResponse
+    qualityResponse(
+            UUID tenderId
+    ) {
+
+        ProcurementDataQualityAssessmentEntity quality =
+                qualityRepository
+                        .findByTender_Id(
+                                tenderId
+                        )
+                        .orElse(
+                                null
+                        );
+
+
+        if (quality == null) {
+            return null;
+        }
+
+
+        return new OpportunityDetailResponse
+                .DataQualityResponse(
+                        quality.getScore(),
+                        quality.getGrade(),
+                        quality.getCriticalIssueCount(),
+                        quality.getWarningIssueCount(),
+                        quality.getInfoIssueCount(),
+                        quality.getAssessedAt(),
+
+                        quality
+                                .getIssues()
+                                .stream()
+                                .map(
+                                        issue ->
+                                                new OpportunityDetailResponse
+                                                        .DataQualityIssueResponse(
+                                                                issue.getCode(),
+                                                                issue.getSeverity(),
+                                                                issue.getFieldName(),
+                                                                issue.getMessage()
+                                                        )
+                                )
+                                .toList()
+                );
+    }
+
+
     private OpportunityDetailResponse.CpvResponse cpv(
             CpvClassificationValue value
     ) {
@@ -382,4 +615,5 @@ public class OpportunityQueryService {
                         value.getLabel()
                 );
     }
+
 }

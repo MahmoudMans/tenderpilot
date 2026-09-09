@@ -1,0 +1,27 @@
+package com.tenderpilot.procurement.quality.domain;
+
+public enum DataQualityIssueCode {
+
+    GENERIC_BUYER_IDENTITY,
+
+    MISSING_CPV,
+
+    MISSING_LOCATION,
+
+    MISSING_SUBMISSION_DEADLINE,
+
+    DEADLINE_BEFORE_PUBLICATION,
+
+    MISSING_ESTIMATED_VALUE,
+
+    MISSING_SOURCE_LINEAGE,
+
+    MISSING_SOURCE_URL,
+
+    AWARD_RECORD_MISSING,
+
+    AWARDED_AMOUNT_MISSING,
+
+    AWARDED_SUPPLIER_MISSING
+
+}

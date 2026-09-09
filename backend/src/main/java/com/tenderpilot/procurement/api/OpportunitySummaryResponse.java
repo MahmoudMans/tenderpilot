@@ -5,6 +5,8 @@ import com.tenderpilot.procurement.domain.ProcurementProcedure;
 import com.tenderpilot.procurement.domain.ProcurementSource;
 import com.tenderpilot.procurement.domain.ProcurementStatus;
 
+import com.tenderpilot.procurement.quality.domain.DataQualityGrade;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -47,7 +49,13 @@ public record OpportunitySummaryResponse(
 
         BigDecimal awardedAmount,
 
-        String awardedCurrency
+        String awardedCurrency,
+
+        Integer dataQualityScore,
+
+        DataQualityGrade dataQualityGrade,
+
+        int dataQualityIssueCount
 
 ) {
 
@@ -56,4 +64,5 @@ public record OpportunitySummaryResponse(
             String label
     ) {
     }
+
 }

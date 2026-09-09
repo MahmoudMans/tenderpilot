@@ -9,6 +9,8 @@ import com.tenderpilot.procurement.award.infrastructure.TenderAwardRepository;
 import com.tenderpilot.procurement.domain.TenderEntity;
 import com.tenderpilot.procurement.infrastructure.TenderRepository;
 
+import com.tenderpilot.procurement.quality.application.ProcurementDataQualityService;
+
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,12 +27,18 @@ public class CanonicalAwardImportService {
     private final TenderRepository tenderRepository;
     private final TenderAwardRepository awardRepository;
 
+
+    private final ProcurementDataQualityService
+            dataQualityService;
+
     public CanonicalAwardImportService(
             TenderRepository tenderRepository,
-            TenderAwardRepository awardRepository
+            TenderAwardRepository awardRepository,
+            ProcurementDataQualityService dataQualityService
     ) {
         this.tenderRepository = tenderRepository;
         this.awardRepository = awardRepository;
+        this.dataQualityService = dataQualityService;
     }
 
     @Transactional
@@ -111,9 +119,20 @@ public class CanonicalAwardImportService {
                 normalizeSuppliers(request.suppliers())
         );
 
-        return awardRepository
-                .saveAndFlush(award)
-                .getId();
+        TenderAwardEntity saved =
+                awardRepository
+                        .saveAndFlush(
+                                award
+                        );
+
+
+        dataQualityService
+                .assessAndPersist(
+                        tenderId
+                );
+
+
+        return saved.getId();
     }
 
     private List<AwardSupplierValue> normalizeSuppliers(
