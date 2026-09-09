@@ -50,3 +50,9 @@ tenderpilot:
     refresh-cookie-name: tenderpilot_refresh
 
     refresh-cookie-secure: false
+
+# Search projection is disabled for ordinary tests.
+# Dedicated Step 9 integration tests override these properties
+# and inject a deterministic in-memory fake gateway.
+tenderpilot.search.enabled: false
+tenderpilot.search.auto-index: false

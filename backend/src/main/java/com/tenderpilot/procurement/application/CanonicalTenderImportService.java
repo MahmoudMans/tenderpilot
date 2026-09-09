@@ -3,6 +3,7 @@ package com.tenderpilot.procurement.application;
 import com.tenderpilot.common.domain.InvalidRequestException;
 
 import com.tenderpilot.procurement.quality.application.ProcurementDataQualityService;
+import com.tenderpilot.search.application.SearchProjectionService;
 
 import com.tenderpilot.procurement.domain.CpvClassificationValue;
 import com.tenderpilot.procurement.domain.ProcurementBuyerEntity;
@@ -47,6 +48,10 @@ public class CanonicalTenderImportService {
             dataQualityService;
 
 
+    private final SearchProjectionService
+            searchProjectionService;
+
+
     public CanonicalTenderImportService(
 
             ProcurementBuyerRepository buyerRepository,
@@ -55,7 +60,9 @@ public class CanonicalTenderImportService {
 
             TenderSourceRecordRepository sourceRecordRepository,
 
-            ProcurementDataQualityService dataQualityService
+            ProcurementDataQualityService dataQualityService,
+
+            SearchProjectionService searchProjectionService
 
     ) {
 
@@ -70,6 +77,10 @@ public class CanonicalTenderImportService {
 
         this.dataQualityService =
                 dataQualityService;
+
+
+        this.searchProjectionService =
+                searchProjectionService;
 
     }
 
@@ -304,6 +315,12 @@ public class CanonicalTenderImportService {
 
         dataQualityService
                 .assessAndPersist(
+                        saved.getId()
+                );
+
+
+        searchProjectionService
+                .indexAfterWrite(
                         saved.getId()
                 );
 

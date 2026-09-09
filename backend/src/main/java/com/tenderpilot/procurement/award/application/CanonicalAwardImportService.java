@@ -10,6 +10,7 @@ import com.tenderpilot.procurement.domain.TenderEntity;
 import com.tenderpilot.procurement.infrastructure.TenderRepository;
 
 import com.tenderpilot.procurement.quality.application.ProcurementDataQualityService;
+import com.tenderpilot.search.application.SearchProjectionService;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
@@ -31,14 +32,21 @@ public class CanonicalAwardImportService {
     private final ProcurementDataQualityService
             dataQualityService;
 
+
+    private final SearchProjectionService
+            searchProjectionService;
+
     public CanonicalAwardImportService(
             TenderRepository tenderRepository,
             TenderAwardRepository awardRepository,
-            ProcurementDataQualityService dataQualityService
+            ProcurementDataQualityService dataQualityService,
+            SearchProjectionService searchProjectionService
     ) {
         this.tenderRepository = tenderRepository;
         this.awardRepository = awardRepository;
         this.dataQualityService = dataQualityService;
+
+        this.searchProjectionService = searchProjectionService;
     }
 
     @Transactional
@@ -128,6 +136,12 @@ public class CanonicalAwardImportService {
 
         dataQualityService
                 .assessAndPersist(
+                        tenderId
+                );
+
+
+        searchProjectionService
+                .indexAfterWrite(
                         tenderId
                 );
 

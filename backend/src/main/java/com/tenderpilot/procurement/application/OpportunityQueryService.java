@@ -142,10 +142,35 @@ public class OpportunityQueryService {
                 )
 
                 .map(
-                        this::summary
+                        this::toSummary
                 )
 
                 .toList();
+    }
+
+
+    @Transactional(readOnly = true)
+    public OpportunitySummaryResponse summaryById(
+            UUID id
+    ) {
+
+        TenderEntity tender =
+                tenderRepository
+                        .findById(
+                                id
+                        )
+                        .orElseThrow(
+                                () ->
+                                        new ResourceNotFoundException(
+                                                "Opportunity was not found"
+                                        )
+                        );
+
+
+        return toSummary(
+                tender
+        );
+
     }
 
 
@@ -284,7 +309,7 @@ public class OpportunityQueryService {
     }
 
 
-    private OpportunitySummaryResponse summary(
+    private OpportunitySummaryResponse toSummary(
             TenderEntity tender
     ) {
 
