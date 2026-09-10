@@ -97,6 +97,7 @@ public class ProcurementAnalyticsSchemaInspector {
         String awardTable =
                 optionalTable(
                         List.of(
+                                "procurement_tender_awards",
                                 "procurement_awards",
                                 "awards"
                         )
@@ -106,6 +107,7 @@ public class ProcurementAnalyticsSchemaInspector {
         String supplierTable =
                 optionalTable(
                         List.of(
+                                "procurement_tender_award_suppliers",
                                 "procurement_award_suppliers",
                                 "award_suppliers",
                                 "procurement_suppliers"
