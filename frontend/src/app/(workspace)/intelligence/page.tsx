@@ -1182,6 +1182,28 @@ function IssueMetric({
           Explore procurement market
         </Link>
 
+
+        <Link
+          href="/dashboard"
+          className="
+            ml-2
+            inline-flex
+            h-10
+            items-center
+            rounded-xl
+            border
+            border-slate-200
+            bg-white
+            px-4
+            text-sm
+            font-semibold
+            text-slate-700
+            hover:bg-slate-50
+          "
+        >
+          Open command center
+        </Link>
+
       </div>
 
 </div>
