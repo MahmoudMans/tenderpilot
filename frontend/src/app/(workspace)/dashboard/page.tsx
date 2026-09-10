@@ -429,6 +429,12 @@ export default function DashboardPage() {
             label="Product map"
           />
 
+
+          <QuickLink
+            href="/showcase"
+            label="Portfolio showcase"
+          />
+
         </div>
 
       </div>

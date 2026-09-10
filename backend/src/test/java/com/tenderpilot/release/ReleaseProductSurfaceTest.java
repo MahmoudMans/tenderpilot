@@ -39,7 +39,7 @@ class ReleaseProductSurfaceTest {
                 pom
         )
                 .contains(
-                        "0.24.0-SNAPSHOT"
+                        "0.25.0-SNAPSHOT"
                 );
 
 
@@ -47,7 +47,7 @@ class ReleaseProductSurfaceTest {
                 application
         )
                 .contains(
-                        "version: 0.24.0-SNAPSHOT"
+                        "version: 0.25.0-SNAPSHOT"
                 );
     }
 
@@ -75,6 +75,7 @@ class ReleaseProductSurfaceTest {
         )
                 .contains(
                         "\"/workspace\"",
+                        "\"/showcase\"",
                         "\"/dashboard\"",
                         "\"/notifications\"",
                         "\"/opportunities\"",
@@ -100,6 +101,7 @@ class ReleaseProductSurfaceTest {
         List<String> pages =
                 List.of(
                         "workspace",
+                        "showcase",
                         "dashboard",
                         "notifications",
                         "opportunities",

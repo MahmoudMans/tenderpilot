@@ -90,6 +90,33 @@ readonly ProductNavigationGroup[] = [
 
       {
         href:
+          "/showcase",
+
+        title:
+          "Portfolio showcase",
+
+        shortTitle:
+          "Showcase",
+
+        description:
+          "Explore the synthetic screenshot-ready TenderPilot demonstration.",
+
+        icon:
+          "workspace",
+
+        keywords: [
+          "showcase",
+          "portfolio",
+          "demo",
+          "synthetic",
+          "presentation",
+          "screenshots",
+        ],
+      },
+
+
+      {
+        href:
           "/dashboard",
 
         title:

@@ -162,7 +162,7 @@ version = (
 ).strip()
 
 
-if version != "0.24.0-SNAPSHOT":
+if version != "0.25.0-SNAPSHOT":
 
     raise SystemExit(
         f"Unexpected Maven version: {version}"
@@ -280,6 +280,10 @@ routes = {
 
     "/workspace":
         "frontend/src/app/(workspace)/workspace/page.tsx",
+
+
+    "/showcase":
+        "frontend/src/app/(workspace)/showcase/page.tsx",
 
     "/dashboard":
         "frontend/src/app/(workspace)/dashboard/page.tsx",
@@ -806,10 +810,10 @@ PY
 )"
 
 
-if [[ "${BACKEND_TEST_TOTAL}" -lt 207 ]]; then
+if [[ "${BACKEND_TEST_TOTAL}" -lt 212 ]]; then
 
   echo "[FAIL] RELEASE_BACKEND_TEST_TOTAL_TOO_LOW=${BACKEND_TEST_TOTAL}"
-  echo "MINIMUM_EXPECTED=207"
+  echo "MINIMUM_EXPECTED=212"
 
   exit 1
 
@@ -860,7 +864,7 @@ fi
   echo "================================================================================"
   echo
 
-  echo "RELEASE_VERSION=0.24.0-SNAPSHOT"
+  echo "RELEASE_VERSION=0.25.0-SNAPSHOT"
   echo
 
   echo "RELEASE_STATIC_CONTRACT=PASS"
