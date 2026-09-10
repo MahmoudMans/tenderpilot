@@ -1,0 +1,242 @@
+databaseChangeLog:
+
+  - changeSet:
+
+      id: 008-company-tender-matching
+
+      author: tenderpilot
+
+      changes:
+
+        - createTable:
+
+            tableName: organization_tender_matches
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: organization_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: total_score
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: grade
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: blocked
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: cpv_score
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: geography_score
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: value_score
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: buyer_score
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: capability_score
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: timing_score
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: quality_score
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: evaluated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addUniqueConstraint:
+
+            tableName: organization_tender_matches
+
+            columnNames: organization_id,tender_id
+
+            constraintName: uk_org_tender_match
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_tender_matches
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_org_tender_match_tender
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: organization_tender_matches
+
+            indexName: idx_org_tender_matches_org_score
+
+            columns:
+
+              - column:
+                  name: organization_id
+
+              - column:
+                  name: total_score
+
+
+        - createIndex:
+
+            tableName: organization_tender_matches
+
+            indexName: idx_org_tender_matches_grade
+
+            columns:
+
+              - column:
+                  name: grade
+
+
+        - createTable:
+
+            tableName: organization_tender_match_signals
+
+            columns:
+
+              - column:
+                  name: match_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: signal_code
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: impact
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: dimension_name
+                  type: VARCHAR(80)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: earned_score
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: maximum_score
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: message
+                  type: VARCHAR(800)
+                  constraints:
+                    nullable: false
+
+
+        - addPrimaryKey:
+
+            tableName: organization_tender_match_signals
+
+            columnNames: match_id,position
+
+            constraintName: pk_org_tender_match_signals
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_tender_match_signals
+
+            baseColumnNames: match_id
+
+            referencedTableName: organization_tender_matches
+
+            referencedColumnNames: id
+
+            constraintName: fk_org_tender_match_signal_match
+
+            onDelete: CASCADE

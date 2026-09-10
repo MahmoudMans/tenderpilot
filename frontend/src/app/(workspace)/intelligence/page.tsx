@@ -386,6 +386,29 @@ export default function IntelligencePage() {
 
 
         <a
+          href="/matches"
+          className="
+            inline-flex
+            h-11
+            items-center
+            justify-center
+            gap-2
+            rounded-xl
+            border
+            border-slate-200
+            bg-white
+            px-5
+            text-sm
+            font-semibold
+            text-slate-700
+            hover:bg-slate-50
+          "
+        >
+          Match opportunities
+        </a>
+
+
+        <a
           href="/search"
           className="
             inline-flex

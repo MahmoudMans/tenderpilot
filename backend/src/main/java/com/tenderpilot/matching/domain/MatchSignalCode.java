@@ -1,0 +1,43 @@
+package com.tenderpilot.matching.domain;
+
+public enum MatchSignalCode {
+
+    CPV_EXACT_MATCH,
+
+    CPV_HIERARCHY_MATCH,
+
+    CPV_NO_MATCH,
+
+    GEOGRAPHY_EXACT_MATCH,
+
+    GEOGRAPHY_COUNTRY_MATCH,
+
+    GEOGRAPHY_NO_MATCH,
+
+    VALUE_IN_RANGE,
+
+    VALUE_OUT_OF_RANGE,
+
+    VALUE_UNKNOWN,
+
+    BUYER_PREFERRED,
+
+    BUYER_NOT_PREFERRED,
+
+    BUYER_NEUTRAL,
+
+    CAPABILITY_MATCH,
+
+    CAPABILITY_NO_MATCH,
+
+    NOTICE_SUFFICIENT,
+
+    NOTICE_SHORT,
+
+    NOTICE_PASSED,
+
+    QUALITY_SCORE,
+
+    EXCLUDED_KEYWORD
+
+}
