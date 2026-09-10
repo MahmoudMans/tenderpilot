@@ -51,3 +51,7 @@ databaseChangeLog:
   - include:
 
       file: db/changelog/changes/012-private-rag-document-qa.yaml
+
+  - include:
+
+      file: db/changelog/changes/013-compliance-matrix.yaml

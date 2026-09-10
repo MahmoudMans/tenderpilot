@@ -6,9 +6,6 @@ import {
   AlertTriangle,
 
   ArrowLeft,
-
-  CheckCircle2,
-
   Download,
 
   FileCheck2,
@@ -1160,6 +1157,30 @@ export default function BidWorkspacePage() {
           "
         >
           Ask bid documents
+        </Link>
+
+
+        <Link
+          href={
+            `/bid-workspaces/${tenderId}/compliance`
+          }
+          className="
+            ml-2
+            inline-flex
+            h-10
+            items-center
+            rounded-xl
+            border
+            border-slate-200
+            bg-white
+            px-4
+            text-sm
+            font-semibold
+            text-slate-700
+            hover:bg-slate-50
+          "
+        >
+          Open compliance matrix
         </Link>
 
       </div>
