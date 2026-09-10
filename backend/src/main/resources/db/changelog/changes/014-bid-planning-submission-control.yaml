@@ -1,0 +1,413 @@
+databaseChangeLog:
+
+  - changeSet:
+
+      id: 014-bid-planning-submission-control
+
+      author: tenderpilot
+
+      changes:
+
+        - createTable:
+
+            tableName: organization_bid_tasks
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: organization_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: requirement_id
+                  type: UUID
+
+              - column:
+                  name: title
+                  type: VARCHAR(600)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: description
+                  type: VARCHAR(3000)
+
+              - column:
+                  name: status
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: priority
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: milestone
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: assigned_to
+                  type: VARCHAR(320)
+
+              - column:
+                  name: due_date
+                  type: DATE
+
+              - column:
+                  name: completed_at
+                  type: TIMESTAMP WITH TIME ZONE
+
+              - column:
+                  name: created_by
+                  type: VARCHAR(320)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_by
+                  type: VARCHAR(320)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_tasks
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_task_tender
+
+            onDelete: CASCADE
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_tasks
+
+            baseColumnNames: requirement_id
+
+            referencedTableName: organization_bid_requirements
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_task_requirement
+
+            onDelete: SET NULL
+
+
+        - createIndex:
+
+            tableName: organization_bid_tasks
+
+            indexName: idx_bid_tasks_org_tender
+
+            columns:
+
+              - column:
+                  name: organization_id
+
+              - column:
+                  name: tender_id
+
+
+        - createIndex:
+
+            tableName: organization_bid_tasks
+
+            indexName: idx_bid_tasks_due_date
+
+            columns:
+
+              - column:
+                  name: due_date
+
+
+        - createIndex:
+
+            tableName: organization_bid_tasks
+
+            indexName: idx_bid_tasks_status_priority
+
+            columns:
+
+              - column:
+                  name: status
+
+              - column:
+                  name: priority
+
+
+        - createTable:
+
+            tableName: organization_bid_submission_controls
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: organization_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: portal_ready
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: signatures_ready
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: technical_response_ready
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: commercial_response_ready
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: administrative_pack_ready
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: final_review_ready
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: submission_authorized
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: planned_submission_at
+                  type: TIMESTAMP WITH TIME ZONE
+
+              - column:
+                  name: submitted_at
+                  type: TIMESTAMP WITH TIME ZONE
+
+              - column:
+                  name: submission_reference
+                  type: VARCHAR(500)
+
+              - column:
+                  name: submitted_by
+                  type: VARCHAR(320)
+
+              - column:
+                  name: notes
+                  type: VARCHAR(3000)
+
+              - column:
+                  name: updated_by
+                  type: VARCHAR(320)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addUniqueConstraint:
+
+            tableName: organization_bid_submission_controls
+
+            columnNames: organization_id,tender_id
+
+            constraintName: uk_bid_submission_control_org_tender
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_submission_controls
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_submission_control_tender
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: organization_bid_submission_controls
+
+            indexName: idx_bid_submission_control_org_tender
+
+            columns:
+
+              - column:
+                  name: organization_id
+
+              - column:
+                  name: tender_id
+
+
+        - createTable:
+
+            tableName: organization_bid_planning_events
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: organization_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: event_type
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: task_id
+                  type: UUID
+
+              - column:
+                  name: actor
+                  type: VARCHAR(320)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: detail
+                  type: VARCHAR(2000)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_planning_events
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_planning_event_tender
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: organization_bid_planning_events
+
+            indexName: idx_bid_planning_events_org_tender_created
+
+            columns:
+
+              - column:
+                  name: organization_id
+
+              - column:
+                  name: tender_id
+
+              - column:
+                  name: created_at
