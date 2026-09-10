@@ -1,0 +1,340 @@
+databaseChangeLog:
+
+  - changeSet:
+
+      id: 012-private-rag-document-qa
+
+      author: tenderpilot
+
+      changes:
+
+        - createTable:
+
+            tableName: organization_bid_rag_chunks
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: organization_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: document_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: chunk_index
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: start_offset
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: end_offset
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: chunk_sha256
+                  type: VARCHAR(64)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: chunk_text
+                  type: TEXT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: embedding_model
+                  type: VARCHAR(200)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: embedding_dimensions
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: embedding_data
+                  type: TEXT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addUniqueConstraint:
+
+            tableName: organization_bid_rag_chunks
+
+            columnNames: document_id,chunk_index
+
+            constraintName: uk_bid_rag_document_chunk
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_rag_chunks
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_rag_chunk_tender
+
+            onDelete: CASCADE
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_rag_chunks
+
+            baseColumnNames: document_id
+
+            referencedTableName: organization_bid_documents
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_rag_chunk_document
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: organization_bid_rag_chunks
+
+            indexName: idx_bid_rag_chunks_org_tender
+
+            columns:
+
+              - column:
+                  name: organization_id
+
+              - column:
+                  name: tender_id
+
+
+        - createTable:
+
+            tableName: organization_bid_rag_queries
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: organization_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: question
+                  type: VARCHAR(5000)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: answer
+                  type: TEXT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: supported
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: generation_model
+                  type: VARCHAR(200)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: embedding_model
+                  type: VARCHAR(200)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: prompt_version
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_by
+                  type: VARCHAR(320)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_rag_queries
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_rag_query_tender
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: organization_bid_rag_queries
+
+            indexName: idx_bid_rag_queries_org_tender_created
+
+            columns:
+
+              - column:
+                  name: organization_id
+
+              - column:
+                  name: tender_id
+
+              - column:
+                  name: created_at
+
+
+        - createTable:
+
+            tableName: organization_bid_rag_query_citations
+
+            columns:
+
+              - column:
+                  name: query_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: chunk_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: source_id
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: document_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: filename
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: chunk_index
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: similarity
+                  type: DOUBLE PRECISION
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: excerpt
+                  type: VARCHAR(1500)
+                  constraints:
+                    nullable: false
+
+
+        - addPrimaryKey:
+
+            tableName: organization_bid_rag_query_citations
+
+            columnNames: query_id,position
+
+            constraintName: pk_bid_rag_query_citations
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_rag_query_citations
+
+            baseColumnNames: query_id
+
+            referencedTableName: organization_bid_rag_queries
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_rag_citation_query
+
+            onDelete: CASCADE

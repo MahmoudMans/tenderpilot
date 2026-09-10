@@ -1138,6 +1138,30 @@ export default function BidWorkspacePage() {
           Analyze documents with local AI
         </Link>
 
+
+        <Link
+          href={
+            `/bid-workspaces/${tenderId}/qa`
+          }
+          className="
+            ml-2
+            inline-flex
+            h-10
+            items-center
+            rounded-xl
+            border
+            border-slate-200
+            bg-white
+            px-4
+            text-sm
+            font-semibold
+            text-slate-700
+            hover:bg-slate-50
+          "
+        >
+          Ask bid documents
+        </Link>
+
       </div>
 
 

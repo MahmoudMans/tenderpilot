@@ -77,7 +77,7 @@ info:
 
     name: TenderPilot
 
-    version: 0.13.0-SNAPSHOT
+    version: 0.14.0-SNAPSHOT
 
 
 
@@ -202,3 +202,23 @@ tenderpilot.local-ai:
   max-input-chars: ${LOCAL_AI_MAX_INPUT_CHARS:60000}
 
   prompt-version: BID_DOCUMENT_ANALYSIS_V1
+
+tenderpilot.rag:
+
+  enabled: ${RAG_ENABLED:true}
+
+  embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text-v2-moe}
+
+  chunk-size-chars: ${RAG_CHUNK_SIZE_CHARS:1600}
+
+  chunk-overlap-chars: ${RAG_CHUNK_OVERLAP_CHARS:240}
+
+  default-top-k: ${RAG_DEFAULT_TOP_K:5}
+
+  max-top-k: ${RAG_MAX_TOP_K:8}
+
+  minimum-similarity: ${RAG_MINIMUM_SIMILARITY:0.15}
+
+  maximum-question-chars: ${RAG_MAXIMUM_QUESTION_CHARS:1200}
+
+  prompt-version: PRIVATE_BID_RAG_V1

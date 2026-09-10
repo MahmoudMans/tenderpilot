@@ -59,3 +59,5 @@ tenderpilot.search.auto-index: false
 
 # Ordinary tests never require a running Ollama daemon.
 tenderpilot.local-ai.enabled: false
+
+tenderpilot.rag.enabled: false
