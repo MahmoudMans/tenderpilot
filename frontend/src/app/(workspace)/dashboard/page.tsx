@@ -411,6 +411,12 @@ export default function DashboardPage() {
             label="Market explorer"
           />
 
+
+          <QuickLink
+            href="/notifications"
+            label="Notifications"
+          />
+
         </div>
 
       </div>

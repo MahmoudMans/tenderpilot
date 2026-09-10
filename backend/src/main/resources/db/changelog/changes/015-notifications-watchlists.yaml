@@ -1,0 +1,175 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 015-notifications-watchlists
+      author: tenderpilot
+
+      changes:
+
+        - createTable:
+            tableName: organization_watchlist_items
+            columns:
+
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: organization_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: type
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: target_key
+                  type: varchar(512)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: label
+                  type: varchar(255)
+
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: organization_watchlist_items
+            columnNames: organization_id,type,target_key
+            constraintName: uq_org_watchlist_target
+
+        - createIndex:
+            tableName: organization_watchlist_items
+            indexName: idx_watchlist_org_type
+            columns:
+              - column:
+                  name: organization_id
+              - column:
+                  name: type
+
+
+        - createTable:
+            tableName: organization_notifications
+            columns:
+
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: organization_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: fingerprint
+                  type: varchar(700)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: type
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: severity
+                  type: varchar(16)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: detail
+                  type: text
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: tender_id
+                  type: uuid
+
+              - column:
+                  name: href
+                  type: varchar(512)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: status
+                  type: varchar(24)
+                  defaultValue: UNREAD
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: last_observed_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: organization_notifications
+            columnNames: organization_id,fingerprint
+            constraintName: uq_org_notification_fingerprint
+
+        - createIndex:
+            tableName: organization_notifications
+            indexName: idx_notification_org_active
+            columns:
+              - column:
+                  name: organization_id
+              - column:
+                  name: active
+              - column:
+                  name: status
+
+        - createIndex:
+            tableName: organization_notifications
+            indexName: idx_notification_org_created
+            columns:
+              - column:
+                  name: organization_id
+              - column:
+                  name: created_at

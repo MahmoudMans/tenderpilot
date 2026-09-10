@@ -1,0 +1,21 @@
+package com.tenderpilot.notification.domain;
+
+public enum NotificationType {
+
+    PORTFOLIO_ACTION,
+
+    WATCHLIST_DEADLINE,
+
+    WATCHLIST_HIGH_MATCH,
+
+    WATCHLIST_COMPLIANCE,
+
+    WATCHLIST_SUBMISSION_READY,
+
+    WATCHLIST_OVERDUE,
+
+    WATCHLIST_BUYER_OPPORTUNITY,
+
+    WATCHLIST_CPV_ACTIVITY
+
+}
