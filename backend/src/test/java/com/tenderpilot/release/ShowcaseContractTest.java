@@ -183,7 +183,7 @@ class ShowcaseContractTest {
                 releaseGate
         )
                 .contains(
-                        "0.25.0-SNAPSHOT",
+                        "0.26.0-SNAPSHOT",
                         "\"/showcase\"",
                         "showcase/page.tsx"
                 );

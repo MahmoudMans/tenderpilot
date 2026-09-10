@@ -117,6 +117,33 @@ readonly ProductNavigationGroup[] = [
 
       {
         href:
+          "/showcase/capture",
+
+        title:
+          "Portfolio capture mode",
+
+        shortTitle:
+          "Capture mode",
+
+        description:
+          "Open six deterministic screenshot-ready synthetic portfolio frames.",
+
+        icon:
+          "workspace",
+
+        keywords: [
+          "capture",
+          "screenshot",
+          "portfolio",
+          "presentation",
+          "demo",
+          "synthetic",
+        ],
+      },
+
+
+      {
+        href:
           "/dashboard",
 
         title:

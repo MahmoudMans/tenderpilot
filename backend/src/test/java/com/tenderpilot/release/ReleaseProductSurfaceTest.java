@@ -39,7 +39,7 @@ class ReleaseProductSurfaceTest {
                 pom
         )
                 .contains(
-                        "0.25.0-SNAPSHOT"
+                        "0.26.0-SNAPSHOT"
                 );
 
 
@@ -47,7 +47,7 @@ class ReleaseProductSurfaceTest {
                 application
         )
                 .contains(
-                        "version: 0.25.0-SNAPSHOT"
+                        "version: 0.26.0-SNAPSHOT"
                 );
     }
 

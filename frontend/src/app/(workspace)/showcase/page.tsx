@@ -1621,6 +1621,25 @@ export default function ShowcasePage() {
         >
 
           <Link
+            href="/showcase/capture"
+            className="
+              inline-flex
+              h-10
+              items-center
+              gap-2
+              rounded-xl
+              bg-[#2f6fed]
+              px-4
+              text-sm
+              font-semibold
+              text-white
+            "
+          >
+            Open capture mode
+          </Link>
+
+
+          <Link
             href="/workspace"
             className="
               inline-flex
