@@ -417,6 +417,12 @@ export default function DashboardPage() {
             label="Notifications"
           />
 
+
+          <QuickLink
+            href="/data-operations"
+            label="Data operations"
+          />
+
         </div>
 
       </div>
