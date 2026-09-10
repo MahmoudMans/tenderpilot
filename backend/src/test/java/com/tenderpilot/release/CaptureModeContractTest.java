@@ -211,10 +211,10 @@ class CaptureModeContractTest {
                 gate
         )
                 .contains(
-                        "0.26.0-SNAPSHOT",
+                        "1.0.0",
                         "\"/showcase/capture\"",
                         "showcase/capture/page.tsx",
-                        "217"
+                        "222"
                 );
     }
 

@@ -162,7 +162,7 @@ version = (
 ).strip()
 
 
-if version != "0.26.0-SNAPSHOT":
+if version != "1.0.0":
 
     raise SystemExit(
         f"Unexpected Maven version: {version}"
@@ -814,10 +814,10 @@ PY
 )"
 
 
-if [[ "${BACKEND_TEST_TOTAL}" -lt 217 ]]; then
+if [[ "${BACKEND_TEST_TOTAL}" -lt 222 ]]; then
 
   echo "[FAIL] RELEASE_BACKEND_TEST_TOTAL_TOO_LOW=${BACKEND_TEST_TOTAL}"
-  echo "MINIMUM_EXPECTED=217"
+  echo "MINIMUM_EXPECTED=222"
 
   exit 1
 
@@ -868,7 +868,7 @@ fi
   echo "================================================================================"
   echo
 
-  echo "RELEASE_VERSION=0.26.0-SNAPSHOT"
+  echo "RELEASE_VERSION=1.0.0"
   echo
 
   echo "RELEASE_STATIC_CONTRACT=PASS"
