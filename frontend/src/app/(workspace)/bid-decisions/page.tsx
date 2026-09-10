@@ -857,6 +857,37 @@ export default function BidDecisionsPage() {
 
                           </Link>
 
+
+                          <Link
+                            href={
+                              `/bid-workspaces/${item.tenderId}`
+                            }
+                            className="
+                              mt-2
+                              inline-flex
+                              h-10
+                              w-full
+                              items-center
+                              justify-center
+                              gap-2
+                              rounded-xl
+                              border
+                              border-slate-200
+                              bg-white
+                              px-4
+                              text-sm
+                              font-semibold
+                              text-slate-700
+                            "
+                          >
+
+                            Preparation workspace
+
+                          </Link>
+
+
+
+
                         </div>
 
                       </div>

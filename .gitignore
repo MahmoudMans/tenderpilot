@@ -25,3 +25,6 @@ frontend/tsconfig.tsbuildinfo
 # Local runtime data
 data/
 tmp/
+
+# TenderPilot local runtime document storage
+**/.tenderpilot-storage/
