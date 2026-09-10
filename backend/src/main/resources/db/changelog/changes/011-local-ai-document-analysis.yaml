@@ -1,0 +1,375 @@
+databaseChangeLog:
+
+  - changeSet:
+
+      id: 011-local-ai-document-analysis
+
+      author: tenderpilot
+
+      changes:
+
+        - createTable:
+
+            tableName: organization_bid_document_texts
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: organization_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: document_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: source_sha256
+                  type: VARCHAR(64)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: text_sha256
+                  type: VARCHAR(64)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: detected_media_type
+                  type: VARCHAR(200)
+
+              - column:
+                  name: extractor_version
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: character_count
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: truncated
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: extracted_text
+                  type: TEXT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: extracted_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addUniqueConstraint:
+
+            tableName: organization_bid_document_texts
+
+            columnNames: document_id
+
+            constraintName: uk_bid_document_text_document
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_document_texts
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_document_text_tender
+
+            onDelete: CASCADE
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_document_texts
+
+            baseColumnNames: document_id
+
+            referencedTableName: organization_bid_documents
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_document_text_document
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: organization_bid_document_texts
+
+            indexName: idx_bid_document_text_org_tender
+
+            columns:
+
+              - column:
+                  name: organization_id
+
+              - column:
+                  name: tender_id
+
+
+        - createTable:
+
+            tableName: organization_bid_document_ai_analyses
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: organization_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: document_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: status
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: provider
+                  type: VARCHAR(80)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: model_name
+                  type: VARCHAR(200)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: prompt_version
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: input_text_sha256
+                  type: VARCHAR(64)
+
+              - column:
+                  name: summary
+                  type: TEXT
+
+              - column:
+                  name: confidence_score
+                  type: INTEGER
+
+              - column:
+                  name: error_message
+                  type: TEXT
+
+              - column:
+                  name: analyzed_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addUniqueConstraint:
+
+            tableName: organization_bid_document_ai_analyses
+
+            columnNames: document_id
+
+            constraintName: uk_bid_document_ai_analysis_document
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_document_ai_analyses
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_document_ai_analysis_tender
+
+            onDelete: CASCADE
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_document_ai_analyses
+
+            baseColumnNames: document_id
+
+            referencedTableName: organization_bid_documents
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_document_ai_analysis_document
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: organization_bid_document_ai_analyses
+
+            indexName: idx_bid_document_ai_org_tender
+
+            columns:
+
+              - column:
+                  name: organization_id
+
+              - column:
+                  name: tender_id
+
+
+        - createIndex:
+
+            tableName: organization_bid_document_ai_analyses
+
+            indexName: idx_bid_document_ai_status
+
+            columns:
+
+              - column:
+                  name: status
+
+
+        - createTable:
+
+            tableName: organization_bid_document_ai_findings
+
+            columns:
+
+              - column:
+                  name: analysis_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: finding_type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: title
+                  type: VARCHAR(600)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: detail
+                  type: TEXT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: evidence_snippet
+                  type: VARCHAR(1500)
+
+              - column:
+                  name: mandatory
+                  type: BOOLEAN
+
+              - column:
+                  name: suggested_requirement_category
+                  type: VARCHAR(50)
+
+
+        - addPrimaryKey:
+
+            tableName: organization_bid_document_ai_findings
+
+            columnNames: analysis_id,position
+
+            constraintName: pk_bid_document_ai_findings
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_document_ai_findings
+
+            baseColumnNames: analysis_id
+
+            referencedTableName: organization_bid_document_ai_analyses
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_document_ai_finding_analysis
+
+            onDelete: CASCADE

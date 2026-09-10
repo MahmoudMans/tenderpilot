@@ -38,7 +38,7 @@
     </artifactId>
 
     <version>
-        0.12.0-SNAPSHOT
+        0.13.0-SNAPSHOT
     </version>
 
     <name>
@@ -223,7 +223,21 @@
 
         </dependency>
 
-    </dependencies>
+
+        <!-- Step 13: local, deterministic document text extraction -->
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>3.3.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-parsers-standard-package</artifactId>
+            <version>3.3.2</version>
+        </dependency>
+
+</dependencies>
 
     <build>
 

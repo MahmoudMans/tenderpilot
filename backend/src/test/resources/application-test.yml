@@ -56,3 +56,6 @@ tenderpilot:
 # and inject a deterministic in-memory fake gateway.
 tenderpilot.search.enabled: false
 tenderpilot.search.auto-index: false
+
+# Ordinary tests never require a running Ollama daemon.
+tenderpilot.local-ai.enabled: false
