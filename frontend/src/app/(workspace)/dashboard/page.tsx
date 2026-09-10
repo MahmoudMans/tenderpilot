@@ -423,6 +423,12 @@ export default function DashboardPage() {
             label="Data operations"
           />
 
+
+          <QuickLink
+            href="/workspace"
+            label="Product map"
+          />
+
         </div>
 
       </div>
