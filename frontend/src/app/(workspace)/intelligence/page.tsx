@@ -1,6 +1,9 @@
 "use client";
 
 
+import Link from "next/link";
+
+
 import {
 
   AlertTriangle,
@@ -383,6 +386,29 @@ export default function IntelligencePage() {
           </p>
 
         </div>
+
+
+        <Link
+          href="/bid-decisions"
+          className="
+            inline-flex
+            h-11
+            items-center
+            justify-center
+            gap-2
+            rounded-xl
+            border
+            border-slate-200
+            bg-white
+            px-5
+            text-sm
+            font-semibold
+            text-slate-700
+            hover:bg-slate-50
+          "
+        >
+          Go / No-Go decisions
+        </Link>
 
 
         <a

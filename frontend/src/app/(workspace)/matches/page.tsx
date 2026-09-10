@@ -659,6 +659,35 @@ export default function MatchesPage() {
       </div>
 
 
+      <div
+        className="
+          mt-5
+        "
+      >
+
+        <Link
+          href="/bid-decisions"
+          className="
+            inline-flex
+            h-10
+            items-center
+            rounded-xl
+            border
+            border-slate-200
+            bg-white
+            px-4
+            text-sm
+            font-semibold
+            text-slate-700
+            hover:bg-slate-50
+          "
+        >
+          Open Go / No-Go workspace
+        </Link>
+
+      </div>
+
+
       {
         error
 

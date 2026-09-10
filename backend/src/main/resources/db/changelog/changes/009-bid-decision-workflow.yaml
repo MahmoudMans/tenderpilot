@@ -1,0 +1,280 @@
+databaseChangeLog:
+
+  - changeSet:
+
+      id: 009-bid-decision-workflow
+
+      author: tenderpilot
+
+      changes:
+
+        - createTable:
+
+            tableName: organization_bid_decisions
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: organization_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: tender_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: outcome
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: recommended_outcome
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: decision_score
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: match_score_snapshot
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: match_grade_snapshot
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: strategic_fit
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: capability_confidence
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: commercial_attractiveness
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: delivery_feasibility
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: resource_capacity
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: risk_confidence
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: recommendation_reason
+                  type: VARCHAR(1200)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: rationale
+                  type: VARCHAR(3000)
+
+              - column:
+                  name: key_risks
+                  type: VARCHAR(3000)
+
+              - column:
+                  name: assumptions
+                  type: VARCHAR(3000)
+
+              - column:
+                  name: decided_by
+                  type: VARCHAR(320)
+
+              - column:
+                  name: decided_at
+                  type: TIMESTAMP WITH TIME ZONE
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addUniqueConstraint:
+
+            tableName: organization_bid_decisions
+
+            columnNames: organization_id,tender_id
+
+            constraintName: uk_org_bid_decision_tender
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_decisions
+
+            baseColumnNames: tender_id
+
+            referencedTableName: procurement_tenders
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_decision_tender
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: organization_bid_decisions
+
+            indexName: idx_bid_decisions_org_outcome
+
+            columns:
+
+              - column:
+                  name: organization_id
+
+              - column:
+                  name: outcome
+
+
+        - createIndex:
+
+            tableName: organization_bid_decisions
+
+            indexName: idx_bid_decisions_org_updated
+
+            columns:
+
+              - column:
+                  name: organization_id
+
+              - column:
+                  name: updated_at
+
+
+        - createTable:
+
+            tableName: organization_bid_decision_history
+
+            columns:
+
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: decision_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: event_type
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: previous_outcome
+                  type: VARCHAR(30)
+
+              - column:
+                  name: new_outcome
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: decision_score
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: actor
+                  type: VARCHAR(320)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: note
+                  type: VARCHAR(2000)
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+
+        - addForeignKeyConstraint:
+
+            baseTableName: organization_bid_decision_history
+
+            baseColumnNames: decision_id
+
+            referencedTableName: organization_bid_decisions
+
+            referencedColumnNames: id
+
+            constraintName: fk_bid_decision_history_decision
+
+            onDelete: CASCADE
+
+
+        - createIndex:
+
+            tableName: organization_bid_decision_history
+
+            indexName: idx_bid_decision_history_decision_created
+
+            columns:
+
+              - column:
+                  name: decision_id
+
+              - column:
+                  name: created_at
