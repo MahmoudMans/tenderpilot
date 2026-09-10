@@ -1109,7 +1109,38 @@ function IssueMetric({
         }
       </p>
 
-    </div>
+
+
+
+      <div
+        className="
+          mt-4
+        "
+      >
+
+        <Link
+          href="/buyers"
+          className="
+            inline-flex
+            h-10
+            items-center
+            rounded-xl
+            border
+            border-slate-200
+            bg-white
+            px-4
+            text-sm
+            font-semibold
+            text-slate-700
+            hover:bg-slate-50
+          "
+        >
+          Explore buyer intelligence
+        </Link>
+
+      </div>
+
+</div>
 
   );
 }
