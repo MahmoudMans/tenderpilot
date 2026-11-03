@@ -509,9 +509,7 @@ export default function OrganizationPage() {
             Building2
           }
 
-          label="
-            Organization
-          "
+          label="Organization"
 
           value={
             organization?.name
@@ -530,9 +528,7 @@ export default function OrganizationPage() {
             Fingerprint
           }
 
-          label="
-            Tenant ID
-          "
+          label="Tenant ID"
 
           value={
             organization?.id
@@ -549,9 +545,7 @@ export default function OrganizationPage() {
             Crown
           }
 
-          label="
-            Your role
-          "
+          label="Your role"
 
           value={
             user
@@ -570,9 +564,7 @@ export default function OrganizationPage() {
             CalendarDays
           }
 
-          label="
-            Created
-          "
+          label="Created"
 
           value={
             organization?.createdAt

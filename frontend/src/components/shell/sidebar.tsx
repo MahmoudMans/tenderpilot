@@ -1,409 +1,55 @@
 "use client";
 
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
-import {
+import { useStoredState } from "@/lib/storage";
+import { cn } from "@/lib/cn";
 
-  BarChart3,
+import { BrandMark } from "./brand-mark";
+import { SidebarNav, SidebarOrganization } from "./sidebar-nav";
 
-  Building2,
-
-  Database,
-
-  FileSearch,
-
-  LayoutDashboard,
-
-  UsersRound,
-
-} from "lucide-react";
-
-
-import Link
-  from "next/link";
-
-
-import {
-  usePathname,
-} from "next/navigation";
-
-
-import {
-  useAuth,
-} from "@/features/auth/auth-context";
-
-
-const navigation = [
-
-  {
-
-    label:
-      "Dashboard",
-
-    href:
-      "/dashboard",
-
-    icon:
-      LayoutDashboard,
-
-  },
-
-  {
-
-    label:
-      "Opportunities",
-
-    href:
-      "/opportunities",
-
-    icon:
-      FileSearch,
-
-  },
-
-  {
-
-    label:
-      "Intelligence",
-
-    href:
-      "/intelligence",
-
-    icon:
-      BarChart3,
-
-  },
-
-  {
-
-    label:
-      "Company",
-
-    href:
-      "/company",
-
-    icon:
-      Building2,
-
-  },
-
-  {
-
-    label:
-      "Organization",
-
-    href:
-      "/organization",
-
-    icon:
-      UsersRound,
-
-  },
-
-  {
-
-    label:
-      "Data Sources",
-
-    href:
-      "/data-sources",
-
-    icon:
-      Database,
-
-  },
-
-];
-
-
-function roleLabel(
-  role:
-    string,
-) {
-
-  return role
-    .toLowerCase()
-    .replaceAll(
-      "_",
-      " ",
-    )
-    .replace(
-      /\b\w/g,
-      (
-        letter,
-      ) =>
-        letter.toUpperCase(),
-    );
-
-}
-
+const SIDEBAR_KEY = "tp-sidebar";
 
 export function Sidebar() {
-
-  const pathname =
-    usePathname();
-
-
-  const {
-
-    user,
-
-  } = useAuth();
-
+  const [state, setState] = useStoredState<"expanded" | "collapsed">(SIDEBAR_KEY, "expanded");
+  const collapsed = state === "collapsed";
 
   return (
-
     <aside
-      className="
-        hidden
-        min-h-screen
-        w-72
-        shrink-0
-        border-r
-        border-slate-200/80
-        bg-white/95
-        px-5
-        py-6
-        lg:flex
-        lg:flex-col
-      "
+      data-app-chrome
+      className={cn(
+        "sticky top-0 hidden h-screen shrink-0 flex-col border-r border-line bg-surface/95 transition-[width] duration-200 lg:flex",
+        collapsed ? "w-[76px]" : "w-72",
+      )}
     >
-
-      <div
-        className="
-          flex
-          items-center
-          gap-3
-          px-2
-        "
-      >
-
-        <div
-          className="
-            grid
-            size-10
-            place-items-center
-            rounded-xl
-            bg-[#14213d]
-            text-sm
-            font-bold
-            tracking-tight
-            text-white
-            shadow-sm
-          "
-        >
-
-          TP
-
-        </div>
-
-
-        <div>
-
-          <p
-            className="
-              text-lg
-              font-semibold
-              tracking-tight
-              text-slate-950
-            "
-          >
-
-            TenderPilot
-
-          </p>
-
-
-          <p
-            className="
-              text-xs
-              text-slate-500
-            "
-          >
-
-            Procurement intelligence
-
-          </p>
-
-        </div>
-
+      <div className={cn("flex h-16 shrink-0 items-center", collapsed ? "justify-center" : "gap-3 px-5")}>
+        <BrandMark />
+        {collapsed ? null : (
+          <div className="min-w-0">
+            <p className="text-lg font-semibold leading-5 tracking-tight text-ink">TenderPilot</p>
+            <p className="text-xs text-muted">Procurement intelligence</p>
+          </div>
+        )}
       </div>
 
+      <SidebarNav collapsed={collapsed} />
+      <SidebarOrganization collapsed={collapsed} />
 
-      <nav
-        className="
-          mt-10
-          space-y-1.5
-        "
-      >
-
-        {
-          navigation.map(
-            (
-              item,
-            ) => {
-
-              const Icon =
-                item.icon;
-
-
-              const active =
-
-                pathname ===
-                item.href
-
-                ||
-
-                pathname.startsWith(
-                  `${item.href}/`,
-                );
-
-
-              return (
-
-                <Link
-
-                  key={
-                    item.href
-                  }
-
-                  href={
-                    item.href
-                  }
-
-                  className={[
-
-                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-
-                    active
-
-                      ? "bg-[#edf4ff] text-[#245fcd]"
-
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-950",
-
-                  ].join(
-                    " ",
-                  )}
-
-                >
-
-                  <Icon
-                    className="
-                      size-[18px]
-                    "
-                    strokeWidth={
-                      1.9
-                    }
-                  />
-
-                  {
-                    item.label
-                  }
-
-                </Link>
-
-              );
-
-            },
-          )
-        }
-
-      </nav>
-
-
-      <div
-        className="
-          mt-auto
-          rounded-2xl
-          border
-          border-slate-200
-          bg-slate-50
-          p-4
-        "
-      >
-
-        <p
-          className="
-            truncate
-            text-sm
-            font-semibold
-            text-slate-900
-          "
+      <div className="border-t border-line p-3">
+        <button
+          type="button"
+          onClick={() => setState(collapsed ? "expanded" : "collapsed")}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className={cn(
+            "flex h-9 w-full items-center rounded-xl text-xs font-medium text-muted transition hover:bg-surface-3 hover:text-ink",
+            collapsed ? "justify-center" : "gap-2.5 px-3",
+          )}
         >
-
-          {
-            user?.organization.name
-            ??
-            "Organization"
-          }
-
-        </p>
-
-
-        <div
-          className="
-            mt-2
-            flex
-            items-center
-            justify-between
-            gap-3
-          "
-        >
-
-          <p
-            className="
-              truncate
-              text-xs
-              text-slate-500
-            "
-          >
-
-            {
-              user?.email
-              ??
-              ""
-            }
-
-          </p>
-
-
-          {
-            user
-
-              ? (
-
-                <span
-                  className="
-                    shrink-0
-                    rounded-full
-                    bg-white
-                    px-2
-                    py-1
-                    text-[10px]
-                    font-semibold
-                    text-slate-600
-                    shadow-sm
-                  "
-                >
-
-                  {
-                    roleLabel(
-                      user.role,
-                    )
-                  }
-
-                </span>
-
-              )
-
-              : null
-          }
-
-        </div>
-
+          {collapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
+          {collapsed ? null : "Collapse"}
+        </button>
       </div>
-
     </aside>
-
   );
-
 }

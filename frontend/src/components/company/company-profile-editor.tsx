@@ -384,13 +384,9 @@ export function CompanyProfileEditor({
 
       <FormSection
 
-        title="
-          Company identity
-        "
+        title="Company identity"
 
-        description="
-          Core information used to understand what the organization does.
-        "
+        description="Core information used to understand what the organization does."
 
       >
 
@@ -706,13 +702,9 @@ export function CompanyProfileEditor({
 
       <FormSection
 
-        title="
-          Commercial strategy
-        "
+        title="Commercial strategy"
 
-        description="
-          Define the opportunity sizes and response windows the company is comfortable pursuing.
-        "
+        description="Define the opportunity sizes and response windows the company is comfortable pursuing."
 
       >
 
@@ -869,13 +861,9 @@ export function CompanyProfileEditor({
 
       <FormSection
 
-        title="
-          Matching signals
-        "
+        title="Matching signals"
 
-        description="
-          These structured signals will become direct inputs into TenderPilot's deterministic matching engine.
-        "
+        description="These structured signals will become direct inputs into TenderPilot's deterministic matching engine."
 
       >
 
@@ -983,13 +971,9 @@ export function CompanyProfileEditor({
 
       <FormSection
 
-        title="
-          Certifications & experience
-        "
+        title="Certifications & experience"
 
-        description="
-          Capture evidence signals that future compliance and reference-matching modules will use.
-        "
+        description="Capture evidence signals used for reference matching and bid compliance."
 
       >
 
@@ -1067,13 +1051,9 @@ export function CompanyProfileEditor({
 
       <FormSection
 
-        title="
-          Strategic preferences
-        "
+        title="Strategic preferences"
 
-        description="
-          Focus recommendations on preferred public buyers and exclude clearly irrelevant opportunity themes.
-        "
+        description="Focus recommendations on preferred public buyers and exclude clearly irrelevant opportunity themes."
 
       >
 

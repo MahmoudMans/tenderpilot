@@ -520,9 +520,7 @@ export function SystemStatusPanel() {
             disabled:opacity-50
           "
 
-          aria-label="
-            Refresh system status
-          "
+          aria-label="Refresh system status"
 
         >
 

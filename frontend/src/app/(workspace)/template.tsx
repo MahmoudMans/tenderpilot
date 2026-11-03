@@ -1,40 +1,16 @@
-import type {
+import type { ReactNode } from "react";
 
-  ReactNode,
-
-} from "react";
-
-
-import {
-
-  ProductExperienceLayer,
-
-} from "@/features/navigation/product-experience-layer";
-
+import { ProductExperienceLayer } from "@/features/navigation/product-experience-layer";
 
 export default function WorkspaceExperienceTemplate({
-
   children,
-
 }: Readonly<{
-
-  children:
-    ReactNode;
-
+  children: ReactNode;
 }>) {
-
   return (
-
     <>
-
       <ProductExperienceLayer />
-
-      {
-        children
-      }
-
+      <div className="animate-rise">{children}</div>
     </>
-
   );
-
 }

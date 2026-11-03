@@ -1,5 +1,7 @@
 "use client";
 
+import { useRecordVisit } from "@/features/navigation/recent";
+
 
 import {
 
@@ -131,6 +133,16 @@ export default function SupplierDetailPage() {
     null,
   );
 
+
+  useRecordVisit(
+    detail
+      ? {
+          href: `/suppliers/${detail.summary.supplierKey}`,
+          title: detail.summary.name,
+          kind: "supplier",
+        }
+      : null,
+  );
 
   useEffect(
     () => {

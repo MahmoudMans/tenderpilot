@@ -577,6 +577,7 @@ export default function MarketExplorerPage() {
                     event.target.value,
                   )
               }
+              aria-label="Opportunity or buyer"
               placeholder="Opportunity or buyer"
               className="
                 h-11
@@ -607,6 +608,7 @@ export default function MarketExplorerPage() {
                 )
             }
             maxLength={2}
+            aria-label="Country code"
             placeholder="Country e.g. FR"
             className="
               h-11
@@ -632,6 +634,7 @@ export default function MarketExplorerPage() {
                   event.target.value,
                 )
             }
+            aria-label="Region"
             placeholder="Region e.g. IDF"
             className="
               h-11
@@ -664,6 +667,7 @@ export default function MarketExplorerPage() {
                     ),
                 )
             }
+            aria-label="CPV prefix"
             placeholder="CPV prefix"
             className="
               h-11
@@ -689,6 +693,7 @@ export default function MarketExplorerPage() {
                     .toUpperCase(),
                 )
             }
+            aria-label="Notice status"
             placeholder="Status e.g. PUBLISHED"
             className="
               h-11
@@ -703,6 +708,7 @@ export default function MarketExplorerPage() {
 
 
           <input
+            aria-label="From date"
             type="date"
             value={
               dateFrom
@@ -727,6 +733,7 @@ export default function MarketExplorerPage() {
 
 
           <input
+            aria-label="To date"
             type="date"
             value={
               dateTo

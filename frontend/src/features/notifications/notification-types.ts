@@ -105,3 +105,5 @@ export type NotificationCenter = {
   }>;
 
 };
+
+export type WatchlistItem = NotificationCenter["watchlist"][number];

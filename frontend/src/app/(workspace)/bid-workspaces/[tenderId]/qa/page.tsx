@@ -1030,6 +1030,7 @@ export default function BidDocumentQaPage() {
                 !canAsk
               }
               rows={4}
+              aria-label="Your question about the tender documents"
               placeholder="Example: What technical references must the bidder provide?"
               className="
                 mt-6

@@ -1,5 +1,9 @@
 "use client";
 
+import { useRecordVisit } from "@/features/navigation/recent";
+import { WatchButton } from "@/features/notifications/watch-button";
+import { SupplierLink } from "@/features/supplier-intelligence/supplier-link";
+
 
 import {
 
@@ -160,6 +164,16 @@ export default function BuyerDetailPage() {
     null,
   );
 
+
+  useRecordVisit(
+    detail
+      ? {
+          href: `/buyers/${detail.summary.buyerId}`,
+          title: detail.summary.name,
+          kind: "buyer",
+        }
+      : null,
+  );
 
   useEffect(
     () => {
@@ -427,13 +441,27 @@ export default function BuyerDetailPage() {
           {
             summary.city
               ? ` · ${summary.city}`
-              : ""
+                            : ""
           }
         </p>
-
+        <div
+          data-print-hide
+          className="
+            mt-4
+          "
+        >
+          <WatchButton
+            type="BUYER"
+            targetKey={
+              summary.buyerId
+            }
+            label={
+              summary.name
+            }
+            size="md"
+          />
+        </div>
       </div>
-
-
       <div
         className="
           mt-7
@@ -1027,13 +1055,7 @@ export default function BuyerDetailPage() {
                         className="
                           text-sm
                           font-semibold
-                          text-slate-900
-                        "
-                      >
-                        {
-                          supplier.name
-                        }
-                      </p>
+                          text-slate-900 " > <SupplierLink name={supplier.name} /> </p>
 
 
                       <span

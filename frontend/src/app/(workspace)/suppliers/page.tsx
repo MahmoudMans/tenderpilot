@@ -34,6 +34,7 @@ import type {
 
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 
 import {
@@ -65,12 +66,18 @@ import {
 } from "@/features/procurement/procurement-format";
 
 
-import type {
+import type { SupplierIntelligenceSummary } from "@/features/supplier-intelligence/supplier-intelligence-types";
+import { readText } from "@/features/navigation/url-filters";
 
-  SupplierIntelligenceSummary,
 
-} from "@/features/supplier-intelligence/supplier-intelligence-types";
-
+/** The list request for a given search text and country. */
+function suppliersPath(query: string, country: string): string {
+  const params = new URLSearchParams();
+  if (query !== "") params.set("q", query);
+  if (country !== "") params.set("country", country);
+  params.set("limit", "60");
+  return `/api/v1/suppliers?${params.toString()}`;
+}
 
 export default function SuppliersPage() {
 
@@ -94,26 +101,13 @@ export default function SuppliersPage() {
   );
 
 
-  const [
-
-    query,
-
-    setQuery,
-
-  ] = useState(
-    "",
-  );
+  const searchParams = useSearchParams();
+  // Links such as /suppliers?q=acme&country=FR open the list already filtered.
+  const [start] = useState(() => ({ query: readText(searchParams, "q"), country: readText(searchParams, "country", 8) }));
+  const [query, setQuery] = useState(start.query);
 
 
-  const [
-
-    country,
-
-    setCountry,
-
-  ] = useState(
-    "",
-  );
+  const [country, setCountry] = useState(start.country);
 
 
   const [
@@ -240,9 +234,7 @@ export default function SuppliersPage() {
         false;
 
 
-      api<SupplierIntelligenceSummary[]>(
-        "/api/v1/suppliers?limit=60",
-      )
+      api<SupplierIntelligenceSummary[]>(suppliersPath(start.query, start.country))
         .then(
           (
             result,
@@ -306,16 +298,13 @@ export default function SuppliersPage() {
 
         cancelled =
           true;
-
       };
-
     },
     [
       api,
+      start,
     ],
   );
-
-
   return (
 
     <div
@@ -414,6 +403,7 @@ export default function SuppliersPage() {
                   event.target.value,
                 )
             }
+            aria-label="Search suppliers by name"
             placeholder="Search supplier name"
             className="
               h-11
@@ -444,6 +434,7 @@ export default function SuppliersPage() {
               )
           }
           maxLength={2}
+          aria-label="Buyer country code"
           placeholder="Buyer country"
           className="
             h-11

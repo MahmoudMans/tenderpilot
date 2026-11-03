@@ -1,0 +1,259 @@
+/*
+ * GENERATED FILE — do not edit by hand.
+ * Source: scripts/generate-dark-theme.mjs
+ * Dark-mode overrides for the Tailwind colour utilities used in frontend/src.
+ */
+
+/* bg */
+.dark .bg-\[\#14213d\]:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #2a4fb8;
+}
+.dark .bg-\[\#edf4ff\]:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #6b9aff24;
+}
+.dark .bg-\[\#f8fafc\]:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #151f36;
+}
+.dark .bg-amber-50:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #f59e0b1a;
+}
+.dark .bg-amber-100:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #f59e0b26;
+}
+.dark .bg-blue-50:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #3b82f61a;
+}
+.dark .bg-blue-100:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #3b82f626;
+}
+.dark .bg-blue-300\/70:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: color-mix(in srgb, #3b82f666 70%, transparent);
+  @supports (color: color-mix(in lab, red, red)) {
+    background-color: color-mix(in oklab, #3b82f666 70%, transparent);
+  }
+}
+.dark .bg-emerald-50:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #10b9811a;
+}
+.dark .bg-emerald-100:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #10b98126;
+}
+.dark .bg-orange-50:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #f973161a;
+}
+.dark .bg-red-50:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #ef44441a;
+}
+.dark .bg-red-100:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #ef444426;
+}
+.dark .bg-slate-50:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #151f36;
+}
+.dark .bg-slate-50\/50:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: color-mix(in srgb, #151f36 50%, transparent);
+  @supports (color: color-mix(in lab, red, red)) {
+    background-color: color-mix(in oklab, #151f36 50%, transparent);
+  }
+}
+.dark .bg-slate-50\/60:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: color-mix(in srgb, #151f36 60%, transparent);
+  @supports (color: color-mix(in lab, red, red)) {
+    background-color: color-mix(in oklab, #151f36 60%, transparent);
+  }
+}
+.dark .bg-slate-100:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #1a2640;
+}
+.dark .bg-slate-200:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #243252;
+}
+.dark .bg-slate-500:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #5f729b;
+}
+.dark .bg-slate-600:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #7387b0;
+}
+.dark .bg-violet-50:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #8b5cf61a;
+}
+.dark .bg-white:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: #111a2d;
+}
+.dark .bg-white\/95:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-color: color-mix(in srgb, #111a2d 95%, transparent);
+  @supports (color: color-mix(in lab, red, red)) {
+    background-color: color-mix(in oklab, #111a2d 95%, transparent);
+  }
+}
+.dark .bg-\[linear-gradient\(135deg\,\#f8fbff_0\%\,\#ffffff_62\%\)\]:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  background-image: linear-gradient(135deg,#151f36 0%,#111a2d 62%);
+}
+@media (hover: hover) {
+  .dark .hover\:bg-\[\#1b2d52\]:not(:where(.tp-dark-surface, .tp-dark-surface *)):hover {
+    background-color: #3460d0;
+  }
+  .dark .hover\:bg-slate-50:not(:where(.tp-dark-surface, .tp-dark-surface *)):hover {
+    background-color: #151f36;
+  }
+  .dark .hover\:bg-white:not(:where(.tp-dark-surface, .tp-dark-surface *)):hover {
+    background-color: #111a2d;
+  }
+}
+.dark .focus\:bg-white:not(:where(.tp-dark-surface, .tp-dark-surface *)):focus {
+  background-color: #111a2d;
+}
+.dark .disabled\:bg-slate-50:not(:where(.tp-dark-surface, .tp-dark-surface *)):disabled {
+  background-color: #151f36;
+}
+
+/* fg */
+.dark .text-\[\#2f6fed\]:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #6b9aff;
+}
+.dark .text-\[\#245fcd\]:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #8bb2ff;
+}
+.dark .text-\[\#14213d\]:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #e9eef9;
+}
+.dark .text-amber-600:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #fbbf24;
+}
+.dark .text-amber-700:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #fcd34d;
+}
+.dark .text-amber-800:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #fde68a;
+}
+.dark .text-amber-900:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #fef3c7;
+}
+.dark .text-blue-600:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #7db3ff;
+}
+.dark .text-blue-600\/70:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: color-mix(in srgb, #7db3ff 70%, transparent);
+  @supports (color: color-mix(in lab, red, red)) {
+    color: color-mix(in oklab, #7db3ff 70%, transparent);
+  }
+}
+.dark .text-blue-700:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #93c5fd;
+}
+.dark .text-blue-800:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #bfdbfe;
+}
+.dark .text-blue-900:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #dbeafe;
+}
+.dark .text-emerald-500:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #34d399;
+}
+.dark .text-emerald-600:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #34d399;
+}
+.dark .text-emerald-700:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #6ee7b7;
+}
+.dark .text-emerald-800:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #a7f3d0;
+}
+.dark .text-emerald-900:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #d1fae5;
+}
+.dark .text-orange-700:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #fdba74;
+}
+.dark .text-red-500:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #f87171;
+}
+.dark .text-red-600:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #f87171;
+}
+.dark .text-red-700:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #fca5a5;
+}
+.dark .text-slate-200:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #3a4a6e;
+}
+.dark .text-slate-300:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #4f5f82;
+}
+.dark .text-slate-400:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #6b7b9c;
+}
+.dark .text-slate-500:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #8d9bb7;
+}
+.dark .text-slate-600:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #a9b6cf;
+}
+.dark .text-slate-700:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #c4cee3;
+}
+.dark .text-slate-800:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #dbe3f2;
+}
+.dark .text-slate-900:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #e9eef9;
+}
+.dark .text-slate-950:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #f3f6fc;
+}
+.dark .text-violet-700:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  color: #c4b5fd;
+}
+@media (hover: hover) {
+  .dark .group-hover\:text-\[\#2f6fed\]:not(:where(.tp-dark-surface, .tp-dark-surface *)):is(:where(.group):hover *) {
+    color: #6b9aff;
+  }
+}
+.dark .placeholder\:text-slate-400:not(:where(.tp-dark-surface, .tp-dark-surface *))::placeholder {
+  color: #6b7b9c;
+}
+@media (hover: hover) {
+  .dark .hover\:text-red-600:not(:where(.tp-dark-surface, .tp-dark-surface *)):hover {
+    color: #f87171;
+  }
+}
+
+/* bd */
+.dark :where(.divide-slate-100:not(:where(.tp-dark-surface, .tp-dark-surface *)) > :not(:last-child)) {
+  border-color: #1a2640;
+}
+.dark .border-\[\#2f6fed\]:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  border-color: #6b9aff;
+}
+.dark .border-amber-200:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  border-color: #f59e0b59;
+}
+.dark .border-blue-100:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  border-color: #3b82f633;
+}
+.dark .border-blue-200:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  border-color: #3b82f659;
+}
+.dark .border-emerald-200:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  border-color: #10b98159;
+}
+.dark .border-red-200:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  border-color: #ef444459;
+}
+.dark .border-slate-100:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  border-color: #1a2640;
+}
+.dark .border-slate-200:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  border-color: #243252;
+}
+.dark .border-slate-300:not(:where(.tp-dark-surface, .tp-dark-surface *)) {
+  border-color: #30406a;
+}
+@media (hover: hover) {
+  .dark .hover\:border-slate-300:not(:where(.tp-dark-surface, .tp-dark-surface *)):hover {
+    border-color: #30406a;
+  }
+}
+.dark .focus\:border-\[\#2f6fed\]:not(:where(.tp-dark-surface, .tp-dark-surface *)):focus {
+  border-color: #6b9aff;
+}

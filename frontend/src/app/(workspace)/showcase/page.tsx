@@ -75,6 +75,7 @@ export default function ShowcasePage() {
 
       <section
         className="
+          tp-dark-surface
           overflow-hidden
           rounded-[34px]
           bg-[#14213d]
@@ -853,6 +854,7 @@ export default function ShowcasePage() {
 
           <div
             className="
+              tp-dark-surface
               rounded-3xl
               bg-[#14213d]
               p-6

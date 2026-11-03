@@ -488,18 +488,12 @@ export default function DataSourcesPage() {
               <SourcePanel
                 source="TED"
                 title="Tenders Electronic Daily"
-                description="
-                  Official EU published procurement notices normalized into the shared TenderPilot opportunity catalogue.
-                "
+                description="Official EU published procurement notices normalized into the shared TenderPilot opportunity catalogue."
                 apiVersion={ted.apiVersion}
                 baseUrl={ted.baseUrl}
                 endpoint={ted.searchPath}
-                datasetLabel="
-                  European procurement notices
-                "
-                documentationUrl="
-                  https://docs.ted.europa.eu/api/latest/search.html
-                "
+                datasetLabel="European procurement notices"
+                documentationUrl="https://docs.ted.europa.eu/api/latest/search.html"
                 authenticationRequired={
                   ted.authenticationRequired
                 }
@@ -545,18 +539,14 @@ export default function DataSourcesPage() {
               <SourcePanel
                 source="BOAMP"
                 title="Bulletin officiel des annonces des marchés publics"
-                description="
-                  Official French procurement notices retrieved through the DILA public open-data service.
-                "
+                description="Official French procurement notices retrieved through the DILA public open-data service."
                 apiVersion={boamp.apiVersion}
                 baseUrl={boamp.baseUrl}
                 endpoint={boamp.recordsPath}
                 datasetLabel={
                   `Dataset: ${boamp.datasetId}`
                 }
-                documentationUrl="
-                  https://boamp-datadila.opendatasoft.com/explore/dataset/boamp/api/
-                "
+                documentationUrl="https://boamp-datadila.opendatasoft.com/explore/dataset/boamp/api/"
                 authenticationRequired={
                   boamp.authenticationRequired
                 }
@@ -602,18 +592,14 @@ export default function DataSourcesPage() {
               <SourcePanel
                 source="DECP"
                 title="Données essentielles de la commande publique"
-                description="
-                  Official French award-stage contract data. Awarded amounts and suppliers remain separate from procurement estimates.
-                "
+                description="Official French award-stage contract data. Awarded amounts and suppliers remain separate from procurement estimates."
                 apiVersion={decp.apiVersion}
                 baseUrl={decp.baseUrl}
                 endpoint={decp.recordsPath}
                 datasetLabel={
                   `Dataset: ${decp.datasetId}`
                 }
-                documentationUrl="
-                  https://data.economie.gouv.fr/explore/dataset/decp-2022-marches-valides/
-                "
+                documentationUrl="https://data.economie.gouv.fr/explore/dataset/decp-2022-marches-valides/"
                 authenticationRequired={
                   decp.authenticationRequired
                 }

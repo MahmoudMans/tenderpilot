@@ -1,5 +1,15 @@
 "use client";
 
+import { ExportMatchesButton } from "@/features/matching/export-matches-button";
+
+import { SavedViewsMenu } from "@/features/saved-views/saved-views-menu";
+
+import { useSavedViews } from "@/features/saved-views/use-saved-views";
+import { MatchFreshnessNotice } from "@/features/matching/match-freshness-notice";
+import { readOption } from "@/features/navigation/url-filters";
+
+import { useToast } from "@/components/ui/toast";
+
 
 import {
 
@@ -33,6 +43,7 @@ import {
 
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 
 import {
@@ -78,6 +89,15 @@ import type {
 
 } from "@/features/matching/matching-types";
 
+
+type MatchFilters = {
+  grade: TenderMatchGrade | "";
+  minimumScore: string;
+  includeBlocked: boolean;
+};
+
+/** The minimum-score values the filter offers. Anything else in a saved view is ignored. */
+const SCORE_VALUES = ["", "85", "70", "55"];
 
 function parseGrade(
   value:
@@ -189,41 +209,15 @@ export default function MatchesPage() {
   );
 
 
-  const [
-
-    grade,
-
-    setGrade,
-
-  ] = useState<
-    TenderMatchGrade
-    |
-    ""
-  >(
-    "",
-  );
+  const searchParams = useSearchParams();
+  // Links such as /matches?grade=EXCELLENT&minScore=70 open the list already filtered.
+  const [grade, setGrade] = useState<TenderMatchGrade | "">(() => parseGrade(searchParams.get("grade") ?? ""));
 
 
-  const [
-
-    minimumScore,
-
-    setMinimumScore,
-
-  ] = useState(
-    "",
-  );
+  const [minimumScore, setMinimumScore] = useState(() => readOption<string>(searchParams, "minScore", SCORE_VALUES, ""));
 
 
-  const [
-
-    includeBlocked,
-
-    setIncludeBlocked,
-
-  ] = useState(
-    false,
-  );
+  const [includeBlocked, setIncludeBlocked] = useState(searchParams.get("includeBlocked") === "true");
 
 
   const [
@@ -263,12 +257,9 @@ export default function MatchesPage() {
   );
 
 
-  const [
-
+    const [
     recalculated,
-
     setRecalculated,
-
   ] = useState<
     TenderMatchRecalculation
     |
@@ -276,6 +267,12 @@ export default function MatchesPage() {
   >(
     null,
   );
+
+  const { toast } = useToast();
+
+  const { views, save, remove } = useSavedViews<MatchFilters>("matches");
+
+  const canSaveView = grade !== "" || minimumScore !== "" || includeBlocked;
 
 
   const fetchMatchData =
@@ -661,7 +658,7 @@ export default function MatchesPage() {
 
       <div
         className="
-          mt-5
+          mt-5 flex flex-wrap gap-3
         "
       >
 
@@ -684,6 +681,25 @@ export default function MatchesPage() {
         >
           Open Go / No-Go workspace
         </Link>
+
+        <ExportMatchesButton matches={matches} />
+
+        <div className="ml-auto">
+          <SavedViewsMenu<MatchFilters>
+            views={views}
+            canSave={canSaveView}
+            onApply={(value) => {
+              setGrade(parseGrade(value.grade ?? ""));
+              setMinimumScore(SCORE_VALUES.includes(value.minimumScore) ? value.minimumScore : "");
+              setIncludeBlocked(value.includeBlocked === true);
+            }}
+            onSave={(name) => {
+              save(name, { grade, minimumScore, includeBlocked });
+              toast({ tone: "success", title: "View saved", description: name.trim() });
+            }}
+            onRemove={remove}
+          />
+        </div>
 
       </div>
 
@@ -793,11 +809,19 @@ export default function MatchesPage() {
       }
 
 
+      <MatchFreshnessNotice
+        evaluatedAt={overview?.lastEvaluatedAt ?? null}
+        loaded={!loading && overview !== null}
+        justRecalculated={recalculated !== null}
+        canRecalculate={canRecalculate}
+        recalculating={recalculating}
+        onRecalculate={() => {
+          void recalculate();
+        }}
+      />
       {
         overview
-
           ? (
-
             <div
               className="
                 mt-7
@@ -884,6 +908,7 @@ export default function MatchesPage() {
         >
 
           <select
+            aria-label="Match grade"
             value={
               grade
             }
@@ -929,6 +954,7 @@ export default function MatchesPage() {
 
 
           <select
+            aria-label="Minimum match score"
             value={
               minimumScore
             }

@@ -18,6 +18,8 @@ import {
 
   LoaderCircle,
 
+  Pencil,
+
   Plus,
 
   Save,
@@ -83,8 +85,23 @@ import type {
   BidRequirementStatus,
 
   BidWorkspace,
-
 } from "@/features/bid-workspace/bid-workspace-types";
+
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+
+import {
+  RequirementEditDialog,
+  type RequirementPatch,
+} from "@/features/bid-workspace/requirement-edit-dialog";
+
+import {
+  NO_REQUIREMENT_FILTERS,
+  RequirementFilterBar,
+  filterRequirements,
+  type RequirementFilters,
+} from "@/features/bid-workspace/requirement-filters";
+
+import { ownerAliases } from "@/lib/owner";
 
 
 const DOCUMENT_CATEGORIES: BidDocumentCategory[] = [
@@ -322,6 +339,31 @@ export default function BidWorkspacePage() {
     "",
   );
 
+
+  const [
+    pendingDelete,
+    setPendingDelete,
+  ] = useState<{
+    kind: "document" | "requirement";
+    id: string;
+    label: string;
+  } | null>(
+    null,
+  );
+
+  const [
+    editingRequirement,
+    setEditingRequirement,
+  ] = useState<BidWorkspace["requirements"][number] | null>(
+    null,
+  );
+
+  const [
+    requirementFilters,
+    setRequirementFilters,
+  ] = useState<RequirementFilters>(
+    NO_REQUIREMENT_FILTERS,
+  );
 
   const fetchWorkspace =
     useCallback(
@@ -905,6 +947,65 @@ export default function BidWorkspacePage() {
   }
 
 
+  async function saveRequirement(
+    requirementId: string,
+    patch: RequirementPatch,
+  ): Promise<string | null> {
+
+    setBusy(
+      true,
+    );
+
+
+    try {
+
+      const updated =
+        await api<BidWorkspace>(
+          `/api/v1/bid-workspaces/${tenderId}/requirements/${requirementId}`,
+          {
+            method:
+              "PUT",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify(
+                patch,
+              ),
+          },
+        );
+
+
+      setWorkspace(
+        updated,
+      );
+
+      return null;
+
+
+    } catch (
+      cause
+    ) {
+
+      return cause instanceof Error
+        ? cause.message
+        : "Unable to save the requirement.";
+
+
+    } finally {
+
+      setBusy(
+        false,
+      );
+
+    }
+
+  }
+
+
   async function deleteRequirement(
     requirementId:
       string,
@@ -956,6 +1057,11 @@ export default function BidWorkspacePage() {
     }
 
   }
+
+
+  const myNames = ownerAliases(user);
+
+  const visibleRequirements = filterRequirements(workspace?.requirements ?? [], requirementFilters, myNames);
 
 
   const canWrite =
@@ -1083,6 +1189,47 @@ export default function BidWorkspacePage() {
         max-w-[1450px]
       "
     >
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title={
+          pendingDelete?.kind === "document"
+            ? "Delete this document?"
+            : "Delete this requirement?"
+        }
+        description={
+          pendingDelete !== null
+            ? `"${pendingDelete.label}" will be permanently removed from this bid workspace. This cannot be undone.`
+            : ""
+        }
+        confirmLabel={
+          pendingDelete?.kind === "document"
+            ? "Delete document"
+            : "Delete requirement"
+        }
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (pendingDelete !== null) {
+            const target = pendingDelete;
+            setPendingDelete(null);
+            if (target.kind === "document") {
+              void deleteDocument(target.id);
+            } else {
+              void deleteRequirement(target.id);
+            }
+          }
+        }}
+      />
+
+
+      <RequirementEditDialog
+        key={editingRequirement?.id ?? "none"}
+        requirement={editingRequirement}
+        documents={workspace.documents}
+        onClose={() => setEditingRequirement(null)}
+        onSave={saveRequirement}
+      />
+
 
       <Link
         href={
@@ -1539,6 +1686,7 @@ export default function BidWorkspacePage() {
                 >
 
                   <input
+                    aria-label="Document file to upload"
                     id="bid-document-file"
                     type="file"
                     onChange={
@@ -1570,6 +1718,7 @@ export default function BidWorkspacePage() {
                   >
 
                     <select
+                      aria-label="Document category"
                       value={
                         documentCategory
                       }
@@ -1632,6 +1781,7 @@ export default function BidWorkspacePage() {
                             event.target.value,
                           )
                       }
+                      aria-label="Document note (optional)"
                       placeholder="Optional note"
                       className="
                         h-11
@@ -1884,11 +2034,14 @@ export default function BidWorkspacePage() {
                                 type="button"
                                 onClick={
                                   () => {
-                                    void deleteDocument(
-                                      documentItem.id,
-                                    );
+                                    setPendingDelete({
+                                      kind: "document",
+                                      id: documentItem.id,
+                                      label: documentItem.originalFilename,
+                                    });
                                   }
                                 }
+                                aria-label={`Delete document ${documentItem.originalFilename}`}
                                 disabled={
                                   busy
                                 }
@@ -2051,6 +2204,7 @@ export default function BidWorkspacePage() {
                           event.target.value,
                         )
                     }
+                    aria-label="Requirement title"
                     placeholder="Requirement title"
                     className="
                       h-11
@@ -2077,6 +2231,7 @@ export default function BidWorkspacePage() {
                           event.target.value,
                         )
                     }
+                    aria-label="Requirement description"
                     placeholder="Requirement description"
                     rows={3}
                     className="
@@ -2102,6 +2257,7 @@ export default function BidWorkspacePage() {
                   >
 
                     <select
+                      aria-label="Requirement category"
                       value={
                         requirementCategory
                       }
@@ -2153,6 +2309,7 @@ export default function BidWorkspacePage() {
 
 
                     <select
+                      aria-label="Source document"
                       value={
                         requirementSourceDocument
                       }
@@ -2215,6 +2372,7 @@ export default function BidWorkspacePage() {
                             event.target.value,
                           )
                       }
+                      aria-label="Page or clause reference"
                       placeholder="Page / clause reference"
                       className="
                         h-11
@@ -2316,7 +2474,26 @@ export default function BidWorkspacePage() {
           >
 
             {
-              workspace.requirements.map(
+              workspace.requirements.length > 0
+
+                ? (
+
+                  <RequirementFilterBar
+                    requirements={workspace.requirements}
+                    visible={visibleRequirements}
+                    filters={requirementFilters}
+                    onChange={setRequirementFilters}
+                    aliases={myNames}
+                  />
+
+                )
+
+                : null
+            }
+
+
+            {
+              visibleRequirements.map(
                 (
                   requirement,
                 ) => (
@@ -2338,9 +2515,12 @@ export default function BidWorkspacePage() {
                         flex
                         flex-col
                         gap-4
-                        md:flex-row
-                        md:items-start
-                        md:justify-between
+                        md:max-xl:flex-row
+                        md:max-xl:items-start
+                        md:max-xl:justify-between
+                        2xl:flex-row
+                        2xl:items-start
+                        2xl:justify-between
                       "
                     >
 
@@ -2502,6 +2682,25 @@ export default function BidWorkspacePage() {
 
 
                           {
+                            requirement.assignedTo
+
+                              ? (
+
+                                <span>
+                                  Owner:
+                                  {" "}
+                                  {
+                                    requirement.assignedTo
+                                  }
+                                </span>
+
+                              )
+
+                              : null
+                          }
+
+
+                          {
                             requirement.dueDate
 
                               ? (
@@ -2523,6 +2722,39 @@ export default function BidWorkspacePage() {
 
                         </div>
 
+
+                        {
+                          requirement.evidenceNotes
+
+                            ? (
+
+                              <p
+                                className="
+                                  mt-2
+                                  text-xs
+                                  leading-5
+                                  text-slate-500
+                                "
+                              >
+                                <span
+                                  className="
+                                    font-semibold
+                                    text-slate-600
+                                  "
+                                >
+                                  Evidence:
+                                </span>
+                                {" "}
+                                {
+                                  requirement.evidenceNotes
+                                }
+                              </p>
+
+                            )
+
+                            : null
+                        }
+
                       </div>
 
 
@@ -2541,6 +2773,7 @@ export default function BidWorkspacePage() {
                             ? (
 
                               <select
+                                aria-label={`Status of requirement ${requirement.title}`}
                                 value={
                                   requirement.status
                                 }
@@ -2602,6 +2835,47 @@ export default function BidWorkspacePage() {
 
 
                         {
+                          canWrite
+
+                            ? (
+
+                              <button
+                                type="button"
+                                onClick={
+                                  () => {
+                                    setEditingRequirement(
+                                      requirement,
+                                    );
+                                  }
+                                }
+                                aria-label={`Edit requirement ${requirement.title}`}
+                                title="Edit requirement"
+                                disabled={
+                                  busy
+                                }
+                                className="
+                                  grid
+                                  size-9
+                                  place-items-center
+                                  rounded-xl
+                                  border
+                                  border-slate-200
+                                  text-slate-600
+                                  disabled:opacity-50
+                                "
+                              >
+                                <Pencil
+                                  className="size-4"
+                                />
+                              </button>
+
+                            )
+
+                            : null
+                        }
+
+
+                        {
                           canDelete
 
                             ? (
@@ -2610,11 +2884,14 @@ export default function BidWorkspacePage() {
                                 type="button"
                                 onClick={
                                   () => {
-                                    void deleteRequirement(
-                                      requirement.id,
-                                    );
+                                    setPendingDelete({
+                                      kind: "requirement",
+                                      id: requirement.id,
+                                      label: requirement.title,
+                                    });
                                   }
                                 }
+                                aria-label={`Delete requirement ${requirement.title}`}
                                 disabled={
                                   busy
                                 }
@@ -2650,7 +2927,7 @@ export default function BidWorkspacePage() {
 
 
             {
-              workspace.requirements.length ===
+              visibleRequirements.length ===
               0
 
                 ? (
@@ -2682,7 +2959,11 @@ export default function BidWorkspacePage() {
                         text-slate-500
                       "
                     >
-                      No requirements recorded yet.
+                      {
+                        workspace.requirements.length === 0
+                          ? "No requirements recorded yet."
+                          : "No requirements match these filters."
+                      }
                     </p>
 
                   </div>

@@ -7,8 +7,6 @@ import {
 
   ArrowLeft,
 
-  CheckCircle2,
-
   ClipboardCheck,
 
   FileWarning,
@@ -834,6 +832,7 @@ export default function ComplianceMatrixPage() {
       >
 
         <select
+          aria-label="Filter by verdict"
           value={
             verdictFilter
           }
@@ -889,6 +888,7 @@ export default function ComplianceMatrixPage() {
 
 
         <select
+          aria-label="Filter by risk"
           value={
             riskFilter
           }

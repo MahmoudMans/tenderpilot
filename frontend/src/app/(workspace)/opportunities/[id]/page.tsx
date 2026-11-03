@@ -1,5 +1,12 @@
 "use client";
 
+import { useRecordVisit } from "@/features/navigation/recent";
+import { OpportunityQuickActions } from "@/features/procurement/opportunity-quick-actions";
+import { ButtonLink } from "@/components/ui/button";
+import { WatchButton } from "@/features/notifications/watch-button";
+import { linkWithParams } from "@/features/navigation/url-filters";
+import { SupplierLink } from "@/features/supplier-intelligence/supplier-link";
+
 
 import {
 
@@ -135,6 +142,17 @@ export default function OpportunityDetailPage() {
     true,
   );
 
+
+  useRecordVisit(
+    opportunity
+      ? {
+          href: `/opportunities/${opportunity.id}`,
+          title: opportunity.title,
+          subtitle: opportunity.buyer.legalName,
+          kind: "opportunity",
+        }
+      : null,
+  );
 
   useEffect(
     () => {
@@ -445,6 +463,14 @@ export default function OpportunityDetailPage() {
 
           </p>
 
+          <OpportunityQuickActions
+            id={opportunity.id}
+            title={opportunity.title}
+            buyerId={opportunity.buyer.id}
+            buyerName={opportunity.buyer.legalName}
+            deadline={opportunity.submissionDeadline}
+          />
+
         </div>
 
 
@@ -518,9 +544,7 @@ export default function OpportunityDetailPage() {
             Building2
           }
 
-          label="
-            Buyer
-          "
+          label="Buyer"
 
           value={
             opportunity.buyer.legalName
@@ -541,9 +565,7 @@ export default function OpportunityDetailPage() {
             WalletCards
           }
 
-          label="
-            Estimated value
-          "
+          label="Estimated value"
 
           value={
             formatValueRange(
@@ -572,9 +594,7 @@ export default function OpportunityDetailPage() {
             CalendarDays
           }
 
-          label="
-            Submission deadline
-          "
+          label="Submission deadline"
 
           value={
             formatDateTime(
@@ -595,9 +615,7 @@ export default function OpportunityDetailPage() {
             MapPinned
           }
 
-          label="
-            Primary geography
-          "
+          label="Primary geography"
 
           value={
             opportunity.primaryRegionName
@@ -631,9 +649,7 @@ export default function OpportunityDetailPage() {
             FileText
           }
 
-          title="
-            CPV classifications
-          "
+          title="CPV classifications"
 
         >
 
@@ -654,6 +670,10 @@ export default function OpportunityDetailPage() {
                       cpv.code
                     }
                     className="
+                      flex
+                      items-start
+                      justify-between
+                      gap-3
                       rounded-xl
                       border
                       border-slate-100
@@ -661,36 +681,55 @@ export default function OpportunityDetailPage() {
                       py-3
                     "
                   >
-
-                    <p
+                    <div
                       className="
-                        text-xs
-                        font-semibold
-                        text-[#2f6fed]
+                        min-w-0
                       "
                     >
-
-                      {
-                        cpv.code
-                      }
-
-                    </p>
-
-
-                    <p
-                      className="
-                        mt-1
-                        text-sm
-                        text-slate-700
-                      "
+                      <p
+                        className="
+                          text-xs
+                          font-semibold
+                          text-[#2f6fed]
+                        "
+                      >
+                        {
+                          cpv.code
+                        }
+                      </p>
+                      <p
+                        className="
+                          mt-1
+                          text-sm
+                          text-slate-700
+                        "
+                      >
+                        {
+                          cpv.label
+                        }
+                      </p>
+                    </div>
+                    <span
+                      data-print-hide
+                      className="flex shrink-0 items-center gap-1"
                     >
-
-                      {
-                        cpv.label
-                      }
-
-                    </p>
-
+                      <ButtonLink
+                        href={linkWithParams("/search", { q: cpv.code })}
+                        variant="ghost"
+                        size="sm"
+                        title="Find similar opportunities"
+                      >
+                        Similar
+                      </ButtonLink>
+                      <WatchButton
+                        type="CPV"
+                        targetKey={
+                          cpv.code
+                        }
+                        label={`${cpv.code} ${cpv.label}`}
+                        compact
+                      />
+                    </span>
                   </div>
 
                 ),
@@ -708,9 +747,7 @@ export default function OpportunityDetailPage() {
             Building2
           }
 
-          title="
-            Contracting authority
-          "
+          title="Contracting authority"
 
         >
 
@@ -763,8 +800,32 @@ export default function OpportunityDetailPage() {
                 "Not provided"
               }
             />
-
           </dl>
+          <div
+            data-print-hide
+            className="
+              mt-5
+              flex
+              flex-wrap
+              gap-2
+            "
+          >
+            <ButtonLink
+              href={`/buyers/${opportunity.buyer.id}`}
+              size="sm"
+            >
+              Buyer intelligence
+            </ButtonLink>
+            <WatchButton
+              type="BUYER"
+              targetKey={
+                opportunity.buyer.id
+              }
+              label={
+                opportunity.buyer.legalName
+              }
+            />
+          </div>
 
         </Section>
 
@@ -782,9 +843,7 @@ export default function OpportunityDetailPage() {
                 ShieldCheck
               }
 
-              title="
-                Data quality assessment
-              "
+              title="Data quality assessment"
 
               className="
                 mt-6
@@ -995,9 +1054,7 @@ export default function OpportunityDetailPage() {
                 CheckCircle2
               }
 
-              title="
-                Contract award
-              "
+              title="Contract award"
 
               className="
                 mt-6
@@ -1131,13 +1188,7 @@ export default function OpportunityDetailPage() {
                                   "
                                 >
 
-                                  {
-                                    supplier.legalName
-                                    ??
-                                    supplier.identifier
-                                    ??
-                                    "Awarded supplier"
-                                  }
+                                  {supplier.legalName ? <SupplierLink name={supplier.legalName} /> : (supplier.identifier ?? "Awarded supplier")}
 
                                 </p>
 
@@ -1238,9 +1289,7 @@ export default function OpportunityDetailPage() {
           MapPinned
         }
 
-        title="
-          Places of performance
-        "
+        title="Places of performance"
 
         className="
           mt-6
@@ -1354,9 +1403,7 @@ export default function OpportunityDetailPage() {
           Layers3
         }
 
-        title="
-          Tender lots
-        "
+        title="Tender lots"
 
         className="
           mt-6
@@ -1551,9 +1598,7 @@ export default function OpportunityDetailPage() {
             CheckCircle2
           }
 
-          title="
-            Procurement characteristics
-          "
+          title="Procurement characteristics"
 
         >
 
@@ -1595,9 +1640,7 @@ export default function OpportunityDetailPage() {
             ShieldCheck
           }
 
-          title="
-            Source lineage
-          "
+          title="Source lineage"
 
         >
 
@@ -1690,9 +1733,7 @@ export default function OpportunityDetailPage() {
                                 text-slate-500
                                 hover:bg-slate-50
                               "
-                              title="
-                                Open source notice
-                              "
+                              title="Open source notice"
                             >
 
                               <ExternalLink

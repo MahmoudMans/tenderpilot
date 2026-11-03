@@ -75,11 +75,8 @@ import {
 } from "@/features/company/company-form";
 
 
-import type {
-
-  CompanyProfile,
-
-} from "@/features/company/company-types";
+import type { CompanyProfile } from "@/features/company/company-types";
+import { ProfileSavedNotice } from "@/features/company/profile-saved-notice";
 
 
 export default function CompanyPage() {
@@ -271,10 +268,9 @@ export default function CompanyPage() {
   );
 
 
-  async function submit(
-    event:
-      FormEvent<HTMLFormElement>,
-  ) {
+  const [justSaved, setJustSaved] = useState(false);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
 
     event.preventDefault();
 
@@ -330,16 +326,9 @@ export default function CompanyPage() {
       );
 
 
-      setForm(
-        profileToForm(
-          result,
-        ),
-      );
-
-
-      setEditing(
-        false,
-      );
+      setForm(profileToForm(result));
+      setEditing(false);
+      setJustSaved(true);
 
 
     } catch (
@@ -642,16 +631,14 @@ export default function CompanyPage() {
 
     user?.role ===
     "BID_MANAGER";
-
-
   return (
-
     <div
       className="
         mx-auto
         max-w-[1400px]
       "
     >
+      {justSaved ? <ProfileSavedNotice onDismiss={() => setJustSaved(false)} /> : null}
 
       <div
         className="
@@ -859,9 +846,7 @@ export default function CompanyPage() {
             Building2
           }
 
-          label="
-            Industry
-          "
+          label="Industry"
 
           value={
             profile.industry
@@ -882,9 +867,7 @@ export default function CompanyPage() {
             WalletCards
           }
 
-          label="
-            Target contract range
-          "
+          label="Target contract range"
 
           value={
             formatRange(
@@ -912,9 +895,7 @@ export default function CompanyPage() {
             Target
           }
 
-          label="
-            Matching signals
-          "
+          label="Matching signals"
 
           value={
             `${profile.capabilities.length} capabilities`
@@ -933,9 +914,7 @@ export default function CompanyPage() {
             Award
           }
 
-          label="
-            Experience
-          "
+          label="Experience"
 
           value={
             profile.yearsExperience !==
@@ -1002,7 +981,7 @@ export default function CompanyPage() {
             >
 
               The score measures how much structured information is
-              currently available to the future opportunity-matching engine.
+              currently available to the opportunity-matching engine.
 
             </p>
 
@@ -1145,9 +1124,7 @@ export default function CompanyPage() {
             Target
           }
 
-          title="
-            Capabilities
-          "
+          title="Capabilities"
 
           count={
             profile.capabilities.length
@@ -1170,9 +1147,7 @@ export default function CompanyPage() {
             MapPinned
           }
 
-          title="
-            Operating regions
-          "
+          title="Operating regions"
 
           count={
             profile.operatingRegions.length
@@ -1223,9 +1198,7 @@ export default function CompanyPage() {
             Globe2
           }
 
-          title="
-            Target CPV categories
-          "
+          title="Target CPV categories"
 
           count={
             profile.targetCpvs.length
@@ -1276,9 +1249,7 @@ export default function CompanyPage() {
             Award
           }
 
-          title="
-            Certifications
-          "
+          title="Certifications"
 
           count={
             profile.certifications.length
@@ -1332,9 +1303,7 @@ export default function CompanyPage() {
           FileText
         }
 
-        title="
-          Reference projects
-        "
+        title="Reference projects"
 
         count={
           profile.referenceProjects.length
@@ -1501,9 +1470,7 @@ export default function CompanyPage() {
             ShieldCheck
           }
 
-          title="
-            Preferred buyer types
-          "
+          title="Preferred buyer types"
 
           count={
             profile.preferredBuyerTypes.length
@@ -1528,9 +1495,7 @@ export default function CompanyPage() {
             CircleDot
           }
 
-          title="
-            Excluded opportunity keywords
-          "
+          title="Excluded opportunity keywords"
 
           count={
             profile.excludedKeywords.length

@@ -28,6 +28,7 @@ import type { LucideIcon } from "lucide-react";
 
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 
 import {
@@ -59,12 +60,18 @@ import {
 } from "@/features/procurement/procurement-format";
 
 
-import type {
+import type { BuyerIntelligenceSummary } from "@/features/buyer-intelligence/buyer-intelligence-types";
+import { readText } from "@/features/navigation/url-filters";
 
-  BuyerIntelligenceSummary,
 
-} from "@/features/buyer-intelligence/buyer-intelligence-types";
-
+/** The list request for a given search text and country. */
+function buyersPath(query: string, country: string): string {
+  const params = new URLSearchParams();
+  if (query !== "") params.set("q", query);
+  if (country !== "") params.set("country", country);
+  params.set("limit", "60");
+  return `/api/v1/buyers?${params.toString()}`;
+}
 
 export default function BuyersPage() {
 
@@ -88,26 +95,13 @@ export default function BuyersPage() {
   );
 
 
-  const [
-
-    query,
-
-    setQuery,
-
-  ] = useState(
-    "",
-  );
+  const searchParams = useSearchParams();
+  // Links such as /buyers?q=ministry&country=FR open the list already filtered.
+  const [start] = useState(() => ({ query: readText(searchParams, "q"), country: readText(searchParams, "country", 8) }));
+  const [query, setQuery] = useState(start.query);
 
 
-  const [
-
-    country,
-
-    setCountry,
-
-  ] = useState(
-    "",
-  );
+  const [country, setCountry] = useState(start.country);
 
 
   const [
@@ -234,9 +228,7 @@ export default function BuyersPage() {
         false;
 
 
-      api<BuyerIntelligenceSummary[]>(
-        "/api/v1/buyers?limit=60",
-      )
+      api<BuyerIntelligenceSummary[]>(buyersPath(start.query, start.country))
         .then(
           (
             result,
@@ -300,16 +292,13 @@ export default function BuyersPage() {
 
         cancelled =
           true;
-
       };
-
     },
     [
       api,
+      start,
     ],
   );
-
-
   return (
 
     <div
@@ -408,6 +397,7 @@ export default function BuyersPage() {
                   event.target.value,
                 )
             }
+            aria-label="Search buyers by name"
             placeholder="Search buyer name"
             className="
               h-11
@@ -438,6 +428,7 @@ export default function BuyersPage() {
               )
           }
           maxLength={2}
+          aria-label="Buyer country code"
           placeholder="Country e.g. FR"
           className="
             h-11

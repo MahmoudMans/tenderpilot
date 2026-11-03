@@ -1,5 +1,7 @@
 "use client";
 
+import { DashboardInsights } from "@/features/dashboard/dashboard-insights";
+
 
 import {
 
@@ -601,6 +603,8 @@ export default function DashboardPage() {
       </div>
 
 
+      <DashboardInsights dashboard={dashboard} />
+
       <div
         className="
           mt-6
@@ -871,6 +875,7 @@ export default function DashboardPage() {
 
         <section
           className="
+            tp-dark-surface
             rounded-3xl
             border
             border-slate-200

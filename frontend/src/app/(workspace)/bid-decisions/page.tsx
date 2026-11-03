@@ -1,5 +1,7 @@
 "use client";
 
+import { ExportDecisionsButton } from "@/features/bid-decision/export-decisions-button";
+
 
 import {
 
@@ -321,6 +323,10 @@ export default function BidDecisionsPage() {
       </div>
 
 
+      <div className="mt-6 flex flex-wrap gap-3">
+        <ExportDecisionsButton items={queue} />
+      </div>
+
       {
         overview
 
@@ -435,6 +441,7 @@ export default function BidDecisionsPage() {
       >
 
         <select
+          aria-label="Minimum match score"
           value={
             minimumMatchScore
           }

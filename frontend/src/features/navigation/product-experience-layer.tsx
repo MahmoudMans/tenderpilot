@@ -1,880 +1,555 @@
 "use client";
 
-
 import {
-
-  Activity,
-
   ArrowRight,
-
-  BarChart3,
-
-  BellRing,
-
-  Building2,
-
-  Command,
-
-  Factory,
-
+  CornerDownLeft,
   FileSearch,
-
-  Gauge,
-
-  Grid2X2,
-
-  LayoutDashboard,
-
-  Scale,
-
+  Keyboard,
+  LoaderCircle,
+  Moon,
+  Rows3,
   Search,
-
-  Target,
-
-  X,
-
+  Sun,
+  Clock,
+  type LucideIcon,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
+import { Dialog } from "@/components/ui/dialog";
+import { Kbd } from "@/components/ui/kbd";
+import { useAuth } from "@/features/auth/auth-context";
+import { useTheme } from "@/features/theme/theme-provider";
+import type { ProcurementSearchResponse } from "@/features/search/search-types";
+import { cn } from "@/lib/cn";
 
-import type {
+import { navigationIcons } from "./navigation-icons";
+import { OPEN_PALETTE_EVENT, OPEN_SHORTCUTS_EVENT } from "./palette-events";
+import { productNavigationItems } from "./product-navigation";
+import { useRecentItems, type RecentItem } from "./recent";
 
-  LucideIcon,
+/* -------------------------------------------------------------------------- */
+/* Keyboard shortcuts                                                         */
+/* -------------------------------------------------------------------------- */
 
-} from "lucide-react";
+const GO_SHORTCUTS: ReadonlyArray<{ key: string; href: string; label: string }> = [
+  { key: "d", href: "/dashboard", label: "Dashboard" },
+  { key: "o", href: "/opportunities", label: "Opportunities" },
+  { key: "s", href: "/search", label: "Search" },
+  { key: "m", href: "/matches", label: "Matches" },
+  { key: "b", href: "/bid-decisions", label: "Bid decisions" },
+  { key: "c", href: "/calendar", label: "Calendar" },
+  { key: "t", href: "/tasks", label: "My tasks" },
+  { key: "n", href: "/notifications", label: "Notifications" },
+  { key: "p", href: "/company", label: "Company profile" },
+  { key: "w", href: "/workspace", label: "Workspace map" },
+];
 
+const GO_WINDOW_MS = 1200;
 
-import {
+function isTypingTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  const tag = target.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target.isContentEditable;
+}
 
-  usePathname,
+/* -------------------------------------------------------------------------- */
+/* Palette model                                                              */
+/* -------------------------------------------------------------------------- */
 
-  useRouter,
-
-} from "next/navigation";
-
-
-import {
-
-  useEffect,
-
-  useMemo,
-
-  useRef,
-
-  useState,
-
-} from "react";
-
-
-import {
-
-  productContextForPath,
-
-  productNavigationItems,
-
-} from "@/features/navigation/product-navigation";
-
-
-import type {
-
-  ProductNavigationIcon,
-
-} from "@/features/navigation/product-navigation";
-
-
-const icons:
-Record<
-  ProductNavigationIcon,
-  LucideIcon
-> = {
-
-  workspace:
-    Grid2X2,
-
-  dashboard:
-    LayoutDashboard,
-
-  opportunities:
-    FileSearch,
-
-  matches:
-    Target,
-
-  decisions:
-    Scale,
-
-  notifications:
-    BellRing,
-
-  market:
-    BarChart3,
-
-  buyers:
-    Building2,
-
-  suppliers:
-    Factory,
-
-  intelligence:
-    Gauge,
-
-  operations:
-    Activity,
-
+type PaletteItem = {
+  id: string;
+  group: string;
+  title: string;
+  subtitle?: string;
+  icon: LucideIcon;
+  href?: string;
+  perform?: () => void;
+  hint?: string;
 };
 
+const recentIcons: Record<RecentItem["kind"], LucideIcon> = {
+  opportunity: FileSearch,
+  buyer: navigationIcons.buyers,
+  supplier: navigationIcons.suppliers,
+  bid: navigationIcons.decisions,
+};
 
-export function ProductExperienceLayer() {
+function searchTokens(query: string): string[] {
+  return query.toLowerCase().split(/\s+/).filter(Boolean);
+}
 
-  const pathname =
-    usePathname();
+function pageScore(
+  item: (typeof productNavigationItems)[number],
+  tokens: readonly string[],
+): number | null {
+  if (tokens.length === 0) return 0;
+  const title = `${item.title} ${item.shortTitle}`.toLowerCase();
+  const haystack = `${title} ${item.description} ${item.keywords.join(" ")}`.toLowerCase();
+  if (!tokens.every((token) => haystack.includes(token))) return null;
+  return tokens.reduce((score, token) => score + (title.includes(token) ? 2 : 1), 0);
+}
 
+type RemoteState = { query: string; hits: ProcurementSearchResponse["hits"] } | null;
 
-  const router =
-    useRouter();
+function PaletteDialog({ onClose, onShortcuts }: { onClose: () => void; onShortcuts: () => void }) {
+  const router = useRouter();
+  const { api } = useAuth();
+  const { resolved, toggle, density, setDensity } = useTheme();
+  const recent = useRecentItems();
 
+  const [query, setQuery] = useState("");
+  const [debounced, setDebounced] = useState("");
+  const [cursor, setCursor] = useState(0);
+  const [remote, setRemote] = useState<RemoteState>(null);
 
-  const inputRef =
-    useRef<HTMLInputElement>(
-      null,
-    );
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listId = useId();
 
+  useEffect(() => {
+    inputRef.current?.focus();
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, []);
 
-  const [
+  // Debounce the query used for live search.
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebounced(query.trim()), 250);
+    return () => window.clearTimeout(timer);
+  }, [query]);
 
-    open,
+  // Live opportunity search through the existing search endpoint.
+  useEffect(() => {
+    if (debounced.length < 2) return;
+    const controller = new AbortController();
+    api<ProcurementSearchResponse>(
+      `/api/v1/search/opportunities?q=${encodeURIComponent(debounced)}&size=5`,
+      { signal: controller.signal },
+    )
+      .then((response) => setRemote({ query: debounced, hits: response.hits }))
+      .catch(() => {
+        if (!controller.signal.aborted) setRemote({ query: debounced, hits: [] });
+      });
+    return () => controller.abort();
+  }, [api, debounced]);
 
-    setOpen,
+  const searching = debounced.length >= 2 && remote?.query !== debounced;
 
-  ] = useState(
-    false,
-  );
+  const items = useMemo<PaletteItem[]>(() => {
+    const tokens = searchTokens(query);
+    const trimmed = query.trim();
+    const list: PaletteItem[] = [];
 
-
-  const [
-
-    query,
-
-    setQuery,
-
-  ] = useState(
-    "",
-  );
-
-
-  useEffect(
-    () => {
-
-      function onKeyDown(
-        event:
-          KeyboardEvent,
-      ) {
-
-        if (
-          (
-            event.metaKey
-            ||
-            event.ctrlKey
-          )
-          &&
-          event.key
-            .toLowerCase() ===
-            "k"
-        ) {
-
-          event.preventDefault();
-
-
-          setOpen(
-            (
-              current,
-            ) =>
-              !current,
-          );
-
+    if (trimmed.length >= 2) {
+      if (remote?.query === debounced) {
+        for (const hit of remote.hits) {
+          list.push({
+            id: `hit-${hit.opportunity.id}`,
+            group: "Opportunities",
+            title: hit.opportunity.title,
+            subtitle: hit.opportunity.buyerName,
+            icon: FileSearch,
+            href: `/opportunities/${hit.opportunity.id}`,
+          });
         }
-
-
-        if (
-          event.key ===
-          "Escape"
-        ) {
-
-          setOpen(
-            false,
-          );
-
-        }
-
       }
+      list.push({
+        id: "search-all",
+        group: "Opportunities",
+        title: `Search all opportunities for “${trimmed}”`,
+        icon: Search,
+        href: `/search?q=${encodeURIComponent(trimmed)}`,
+        hint: "Full-text search",
+      });
+    }
 
+    if (trimmed.length === 0) {
+      for (const item of recent.slice(0, 5)) {
+        list.push({
+          id: `recent-${item.href}`,
+          group: "Recently viewed",
+          title: item.title,
+          subtitle: item.subtitle,
+          icon: recentIcons[item.kind] ?? Clock,
+          href: item.href,
+        });
+      }
+    }
 
-      document.addEventListener(
-        "keydown",
-        onKeyDown,
-      );
+    const pages = productNavigationItems
+      .map((item) => ({ item, score: pageScore(item, tokens) }))
+      .filter((entry): entry is { item: (typeof productNavigationItems)[number]; score: number } => entry.score !== null)
+      .sort((a, b) => b.score - a.score);
 
+    for (const { item } of pages) {
+      list.push({
+        id: `page-${item.href}`,
+        group: "Go to",
+        title: item.shortTitle,
+        subtitle: item.description,
+        icon: navigationIcons[item.icon],
+        href: item.href,
+      });
+    }
 
-      return () => {
+    const actions: PaletteItem[] = [
+      {
+        id: "action-theme",
+        group: "Actions",
+        title: resolved === "dark" ? "Switch to light theme" : "Switch to dark theme",
+        icon: resolved === "dark" ? Sun : Moon,
+        perform: toggle,
+      },
+      {
+        id: "action-density",
+        group: "Actions",
+        title: density === "compact" ? "Use comfortable density" : "Use compact density",
+        icon: Rows3,
+        perform: () => setDensity(density === "compact" ? "comfortable" : "compact"),
+      },
+      {
+        id: "action-shortcuts",
+        group: "Actions",
+        title: "Show keyboard shortcuts",
+        icon: Keyboard,
+        perform: onShortcuts,
+        hint: "?",
+      },
+    ];
 
-        document.removeEventListener(
-          "keydown",
-          onKeyDown,
-        );
+    for (const action of actions) {
+      if (tokens.length === 0 || tokens.every((token) => action.title.toLowerCase().includes(token))) {
+        list.push(action);
+      }
+    }
 
-      };
+    return list;
+  }, [query, debounced, remote, recent, resolved, toggle, density, setDensity, onShortcuts]);
 
+  const activeIndex = Math.min(cursor, Math.max(0, items.length - 1));
+  const activeId = items[activeIndex] ? `${listId}-${activeIndex}` : undefined;
+
+  useEffect(() => {
+    if (!activeId) return;
+    document.getElementById(activeId)?.scrollIntoView({ block: "nearest" });
+  }, [activeId]);
+
+  const run = useCallback(
+    (item: PaletteItem) => {
+      onClose();
+      if (item.perform) {
+        item.perform();
+      } else if (item.href) {
+        router.push(item.href);
+      }
     },
-    [],
+    [onClose, router],
   );
 
+  function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setCursor(items.length === 0 ? 0 : (activeIndex + 1) % items.length);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setCursor(items.length === 0 ? 0 : (activeIndex - 1 + items.length) % items.length);
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      setCursor(0);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      setCursor(Math.max(0, items.length - 1));
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      const item = items[activeIndex];
+      if (item) run(item);
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      onClose();
+    }
+  }
 
-  useEffect(
-    () => {
+  const startsGroup = items.map((item, index) => index === 0 || items[index - 1].group !== item.group);
 
-      if (
-        !open
-      ) {
+  return (
+    <div
+      data-app-chrome
+      className="fixed inset-0 z-[75] flex items-start justify-center bg-[var(--scrim)] px-3 pt-[10vh] backdrop-blur-sm animate-fade sm:px-4"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Search TenderPilot"
+        className="w-full max-w-2xl animate-pop overflow-hidden rounded-3xl border border-line bg-surface shadow-pop"
+      >
+        <div className="flex items-center gap-3 border-b border-line px-4">
+          {searching ? (
+            <LoaderCircle className="size-4 shrink-0 animate-spin text-brand" aria-hidden="true" />
+          ) : (
+            <Search className="size-4 shrink-0 text-faint" aria-hidden="true" />
+          )}
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setCursor(0);
+            }}
+            onKeyDown={onKeyDown}
+            role="combobox"
+            aria-expanded="true"
+            aria-controls={listId}
+            aria-activedescendant={activeId}
+            aria-autocomplete="list"
+            aria-label="Search TenderPilot"
+            placeholder="Search tenders, buyers, pages and actions…"
+            autoComplete="off"
+            spellCheck={false}
+            className="h-14 min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-faint"
+          />
+          <Kbd>Esc</Kbd>
+        </div>
+
+        <ul id={listId} role="listbox" aria-label="Results" className="max-h-[min(26rem,55vh)] overflow-y-auto p-2">
+          {items.length === 0 ? (
+            <li className="px-4 py-10 text-center text-sm text-muted">
+              No matches for “{query.trim()}”. Try a module name, a buyer or a CPV keyword.
+            </li>
+          ) : null}
+          {items.map((item, index) => {
+            const Icon = item.icon;
+            const heading = startsGroup[index];
+            const active = index === activeIndex;
+            return (
+              <li key={item.id} role="presentation">
+                {heading ? (
+                  <p
+                    className={cn(
+                      "px-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-faint",
+                      index === 0 ? "pt-1" : "pt-3",
+                    )}
+                  >
+                    {item.group}
+                  </p>
+                ) : null}
+                <div
+                  id={`${listId}-${index}`}
+                  role="option"
+                  aria-selected={active}
+                  onMouseMove={() => setCursor(index)}
+                  onClick={() => run(item)}
+                  className={cn(
+                    "flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5",
+                    active ? "bg-brand-soft" : "",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "grid size-8 shrink-0 place-items-center rounded-lg border",
+                      active ? "border-brand-line bg-surface text-brand" : "border-line bg-surface-2 text-muted",
+                    )}
+                  >
+                    <Icon className="size-4" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className={cn("block truncate text-sm font-medium", active ? "text-brand" : "text-ink")}>
+                      {item.title}
+                    </span>
+                    {item.subtitle ? (
+                      <span className="block truncate text-xs text-muted">{item.subtitle}</span>
+                    ) : null}
+                  </span>
+                  {item.hint ? <span className="shrink-0 text-xs text-faint">{item.hint}</span> : null}
+                  {active ? <ArrowRight className="size-4 shrink-0 text-brand" aria-hidden="true" /> : null}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="flex items-center justify-between gap-4 border-t border-line bg-surface-2 px-4 py-2.5 text-[11px] text-muted">
+          <span className="flex items-center gap-3">
+            <span className="flex items-center gap-1">
+              <Kbd>↑</Kbd>
+              <Kbd>↓</Kbd> navigate
+            </span>
+            <span className="flex items-center gap-1">
+              <Kbd>
+                <CornerDownLeft className="size-3" aria-label="Enter" />
+              </Kbd>{" "}
+              open
+            </span>
+          </span>
+          <span className="hidden sm:block">Tip: press / anywhere to search, ? for shortcuts</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Shortcuts help                                                             */
+/* -------------------------------------------------------------------------- */
+
+function ShortcutsDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title="Keyboard shortcuts"
+      description="Work without leaving the keyboard. Shortcuts are ignored while you type in a field."
+    >
+      <div className="grid gap-6 sm:grid-cols-2">
+        <section>
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-faint">General</h3>
+          <dl className="mt-3 space-y-2.5 text-sm">
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-ink-2">Command palette</dt>
+              <dd className="flex gap-1">
+                <Kbd>⌘ / Ctrl</Kbd>
+                <Kbd>K</Kbd>
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-ink-2">Search</dt>
+              <dd>
+                <Kbd>/</Kbd>
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-ink-2">This help</dt>
+              <dd>
+                <Kbd>?</Kbd>
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-ink-2">Close dialogs</dt>
+              <dd>
+                <Kbd>Esc</Kbd>
+              </dd>
+            </div>
+          </dl>
+        </section>
+        <section>
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-faint">
+            Go to… (press G, then)
+          </h3>
+          <dl className="mt-3 space-y-2.5 text-sm">
+            {GO_SHORTCUTS.map((shortcut) => (
+              <div key={shortcut.key} className="flex items-center justify-between gap-3">
+                <dt className="text-ink-2">{shortcut.label}</dt>
+                <dd className="flex gap-1">
+                  <Kbd>G</Kbd>
+                  <Kbd>{shortcut.key.toUpperCase()}</Kbd>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      </div>
+    </Dialog>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Layer                                                                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Mounted once by the workspace template. Owns the global command palette
+ * (metaKey / ctrlKey + K, or "/"), the "g then …" navigation shortcuts and the
+ * shortcut reference. The topbar opens the same palette through window events.
+ */
+export function ProductExperienceLayer() {
+  const router = useRouter();
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const goPendingSince = useRef(0);
+
+  const closePalette = useCallback(() => setPaletteOpen(false), []);
+  const closeShortcuts = useCallback(() => setShortcutsOpen(false), []);
+  const openShortcuts = useCallback(() => {
+    setPaletteOpen(false);
+    setShortcutsOpen(true);
+  }, []);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setShortcutsOpen(false);
+        setPaletteOpen((value) => !value);
         return;
       }
 
-
-      const frame =
-        window.requestAnimationFrame(
-          () => {
-
-            inputRef.current?.focus();
-
-          },
-        );
-
-
-      return () => {
-
-        window.cancelAnimationFrame(
-          frame,
-        );
-
-      };
-
-    },
-    [
-      open,
-    ],
-  );
-
-
-  const context =
-    productContextForPath(
-      pathname,
-    );
-
-
-  const results =
-    useMemo(
-      () => {
-
-        const normalized =
-          query
-            .trim()
-            .toLowerCase();
-
-
-        if (
-          normalized ===
-          ""
-        ) {
-
-          return productNavigationItems;
-
-        }
-
-
-        return productNavigationItems.filter(
-          (
-            item,
-          ) => {
-
-            const searchable =
-              [
-                item.title,
-                item.shortTitle,
-                item.description,
-                ...item.keywords,
-              ]
-                .join(
-                  " ",
-                )
-                .toLowerCase();
-
-
-            return searchable.includes(
-              normalized,
-            );
-
-          },
-        );
-
-      },
-      [
-        query,
-      ],
-    );
-
-
-  function navigate(
-    href:
-      string,
-  ) {
-
-    setOpen(
-      false,
-    );
-
-
-    setQuery(
-      "",
-    );
-
-
-    router.push(
-      href,
-    );
-
-  }
-
-
-  return (
-
-    <>
-
-      <button
-        type="button"
-        onClick={
-          () =>
-            setOpen(
-              true,
-            )
-        }
-        className="
-          fixed
-          bottom-5
-          right-5
-          z-40
-          inline-flex
-          h-11
-          items-center
-          gap-2
-          rounded-2xl
-          border
-          border-slate-200
-          bg-white
-          px-4
-          text-xs
-          font-semibold
-          text-slate-700
-          shadow-lg
-          shadow-slate-900/10
-          transition
-          hover:-translate-y-0.5
-          hover:border-slate-300
-          hover:shadow-xl
-        "
-        aria-label="Open TenderPilot navigation"
-      >
-
-        <Command
-          className="
-            size-4
-            text-[#2f6fed]
-          "
-        />
-
-        <span
-          className="
-            hidden
-            sm:inline
-          "
-        >
-          Navigate
-        </span>
-
-
-        <span
-          className="
-            rounded-md
-            bg-slate-100
-            px-1.5
-            py-0.5
-            font-mono
-            text-[9px]
-            text-slate-400
-          "
-        >
-          ⌘K
-        </span>
-
-      </button>
-
-
-      {
-        open
-
-          ? (
-
-            <div
-              className="
-                fixed
-                inset-0
-                z-50
-                flex
-                items-start
-                justify-center
-                bg-slate-950/40
-                px-4
-                pt-[8vh]
-                backdrop-blur-sm
-              "
-              role="dialog"
-              aria-modal="true"
-              aria-label="TenderPilot navigation"
-            >
-
-              <div
-                className="
-                  w-full
-                  max-w-2xl
-                  overflow-hidden
-                  rounded-3xl
-                  border
-                  border-slate-200
-                  bg-white
-                  shadow-2xl
-                "
-              >
-
-                <div
-                  className="
-                    border-b
-                    border-slate-100
-                    p-4
-                  "
-                >
-
-                  <div
-                    className="
-                      flex
-                      items-center
-                      justify-between
-                      gap-4
-                    "
-                  >
-
-                    <div
-                      className="
-                        min-w-0
-                      "
-                    >
-
-                      <p
-                        className="
-                          text-[9px]
-                          font-semibold
-                          uppercase
-                          tracking-[0.12em]
-                          text-slate-400
-                        "
-                      >
-                        Current context
-                      </p>
-
-
-                      <p
-                        className="
-                          mt-1
-                          truncate
-                          text-xs
-                          font-semibold
-                          text-slate-700
-                        "
-                      >
-                        TenderPilot
-                        {" / "}
-                        {
-                          context.group
-                        }
-                        {" / "}
-                        {
-                          context.title
-                        }
-                      </p>
-
-                    </div>
-
-
-                    <button
-                      type="button"
-                      onClick={
-                        () =>
-                          setOpen(
-                            false,
-                          )
-                      }
-                      className="
-                        grid
-                        size-9
-                        shrink-0
-                        place-items-center
-                        rounded-xl
-                        text-slate-400
-                        hover:bg-slate-100
-                        hover:text-slate-700
-                      "
-                      aria-label="Close TenderPilot navigation"
-                    >
-
-                      <X
-                        className="size-4"
-                      />
-
-                    </button>
-
-                  </div>
-
-
-                  <div
-                    className="
-                      relative
-                      mt-4
-                    "
-                  >
-
-                    <Search
-                      className="
-                        absolute
-                        left-3
-                        top-3.5
-                        size-4
-                        text-slate-400
-                      "
-                    />
-
-
-                    <input
-                      ref={
-                        inputRef
-                      }
-                      value={
-                        query
-                      }
-                      onChange={
-                        (
-                          event,
-                        ) =>
-                          setQuery(
-                            event.target.value,
-                          )
-                      }
-                      placeholder="Search TenderPilot…"
-                      aria-label="Search TenderPilot sections"
-                      className="
-                        h-11
-                        w-full
-                        rounded-xl
-                        border
-                        border-slate-200
-                        bg-slate-50
-                        pl-10
-                        pr-3
-                        text-sm
-                        outline-none
-                        transition
-                        focus:border-blue-300
-                        focus:bg-white
-                        focus:ring-4
-                        focus:ring-blue-50
-                      "
-                    />
-
-                  </div>
-
-                </div>
-
-
-                <div
-                  className="
-                    max-h-[62vh]
-                    overflow-y-auto
-                    p-3
-                  "
-                >
-
-                  {
-                    results.map(
-                      (
-                        item,
-                      ) => {
-
-                        const Icon =
-                          icons[
-                            item.icon
-                          ];
-
-
-                        const active =
-                          pathname ===
-                            item.href
-                          ||
-                          (
-                            item.href !==
-                              "/workspace"
-                            &&
-                            pathname.startsWith(
-                              `${item.href}/`,
-                            )
-                          );
-
-
-                        return (
-
-                          <button
-                            key={
-                              item.href
-                            }
-                            type="button"
-                            onClick={
-                              () =>
-                                navigate(
-                                  item.href,
-                                )
-                            }
-                            className={
-                              `
-                                group
-                                flex
-                                w-full
-                                items-start
-                                gap-4
-                                rounded-2xl
-                                p-4
-                                text-left
-                                transition
-                                ${
-                                  active
-                                    ? "bg-blue-50"
-                                    : "hover:bg-slate-50"
-                                }
-                              `
-                            }
-                          >
-
-                            <div
-                              className={
-                                `
-                                  grid
-                                  size-10
-                                  shrink-0
-                                  place-items-center
-                                  rounded-xl
-                                  ${
-                                    active
-                                      ? "bg-white text-[#2f6fed]"
-                                      : "bg-slate-100 text-slate-500"
-                                  }
-                                `
-                              }
-                            >
-
-                              <Icon
-                                className="size-4"
-                              />
-
-                            </div>
-
-
-                            <div
-                              className="
-                                min-w-0
-                                flex-1
-                              "
-                            >
-
-                              <div
-                                className="
-                                  flex
-                                  items-center
-                                  gap-2
-                                "
-                              >
-
-                                <p
-                                  className="
-                                    text-sm
-                                    font-semibold
-                                    text-slate-900
-                                  "
-                                >
-                                  {
-                                    item.title
-                                  }
-                                </p>
-
-
-                                {
-                                  active
-
-                                    ? (
-
-                                      <span
-                                        className="
-                                          rounded-full
-                                          bg-white
-                                          px-2
-                                          py-0.5
-                                          text-[9px]
-                                          font-semibold
-                                          text-[#2f6fed]
-                                        "
-                                      >
-                                        Current
-                                      </span>
-
-                                    )
-
-                                    : null
-                                }
-
-                              </div>
-
-
-                              <p
-                                className="
-                                  mt-1
-                                  text-xs
-                                  leading-5
-                                  text-slate-500
-                                "
-                              >
-                                {
-                                  item.description
-                                }
-                              </p>
-
-                            </div>
-
-
-                            <ArrowRight
-                              className="
-                                mt-3
-                                size-4
-                                shrink-0
-                                text-slate-300
-                                transition
-                                group-hover:translate-x-0.5
-                              "
-                            />
-
-                          </button>
-
-                        );
-
-                      },
-                    )
-                  }
-
-
-                  {
-                    results.length ===
-                    0
-
-                      ? (
-
-                        <div
-                          className="
-                            py-14
-                            text-center
-                          "
-                        >
-
-                          <Search
-                            className="
-                              mx-auto
-                              size-7
-                              text-slate-300
-                            "
-                          />
-
-
-                          <p
-                            className="
-                              mt-3
-                              text-sm
-                              font-semibold
-                              text-slate-800
-                            "
-                          >
-                            No matching TenderPilot section
-                          </p>
-
-
-                          <p
-                            className="
-                              mt-1
-                              text-xs
-                              text-slate-400
-                            "
-                          >
-                            Try bids, market, buyers, alerts,
-                            opportunities or operations.
-                          </p>
-
-                        </div>
-
-                      )
-
-                      : null
-                  }
-
-                </div>
-
-
-                <div
-                  className="
-                    flex
-                    items-center
-                    justify-between
-                    gap-4
-                    border-t
-                    border-slate-100
-                    bg-slate-50
-                    px-4
-                    py-3
-                    text-[10px]
-                    text-slate-400
-                  "
-                >
-
-                  <span>
-                    ⌘K / Ctrl+K to toggle
-                  </span>
-
-
-                  <span>
-                    Esc to close
-                  </span>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          )
-
-          : null
+      if (event.key === "Escape") {
+        setPaletteOpen(false);
+        return;
       }
 
+      if (event.metaKey || event.ctrlKey || event.altKey || event.defaultPrevented) return;
+      if (isTypingTarget(event.target)) return;
+
+      if (event.key === "/") {
+        event.preventDefault();
+        setPaletteOpen(true);
+        return;
+      }
+
+      if (event.key === "?") {
+        event.preventDefault();
+        setShortcutsOpen(true);
+        return;
+      }
+
+      const key = event.key.toLowerCase();
+      const now = performance.now();
+
+      if (key === "g") {
+        goPendingSince.current = now;
+        return;
+      }
+
+      if (goPendingSince.current > 0 && now - goPendingSince.current < GO_WINDOW_MS) {
+        const target = GO_SHORTCUTS.find((shortcut) => shortcut.key === key);
+        goPendingSince.current = 0;
+        if (target) {
+          event.preventDefault();
+          router.push(target.href);
+        }
+      }
+    }
+
+    function onOpenPalette() {
+      setShortcutsOpen(false);
+      setPaletteOpen(true);
+    }
+
+    function onOpenShortcuts() {
+      setPaletteOpen(false);
+      setShortcutsOpen(true);
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener(OPEN_PALETTE_EVENT, onOpenPalette);
+    window.addEventListener(OPEN_SHORTCUTS_EVENT, onOpenShortcuts);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener(OPEN_PALETTE_EVENT, onOpenPalette);
+      window.removeEventListener(OPEN_SHORTCUTS_EVENT, onOpenShortcuts);
+    };
+  }, [router]);
+
+  return (
+    <>
+      {paletteOpen ? <PaletteDialog onClose={closePalette} onShortcuts={openShortcuts} /> : null}
+      <ShortcutsDialog open={shortcutsOpen} onClose={closeShortcuts} />
     </>
-
   );
-
 }

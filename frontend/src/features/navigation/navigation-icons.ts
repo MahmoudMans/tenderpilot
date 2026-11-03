@@ -1,0 +1,45 @@
+import {
+  Activity,
+  BarChart3,
+  BellRing,
+  Briefcase,
+  Building2,
+  CalendarDays,
+  ClipboardList,
+  Database,
+  FileSearch,
+  Factory,
+  Gauge,
+  Grid2X2,
+  LayoutDashboard,
+  Scale,
+  Search,
+  Settings,
+  Target,
+  UsersRound,
+  type LucideIcon,
+} from "lucide-react";
+
+import type { ProductNavigationIcon } from "./product-navigation";
+
+/** Single source of truth for navigation icons (sidebar, palette, workspace map). */
+export const navigationIcons: Record<ProductNavigationIcon, LucideIcon> = {
+  workspace: Grid2X2,
+  dashboard: LayoutDashboard,
+  opportunities: FileSearch,
+  matches: Target,
+  decisions: Scale,
+  notifications: BellRing,
+  market: BarChart3,
+  buyers: Building2,
+  suppliers: Factory,
+  intelligence: Gauge,
+  operations: Activity,
+  search: Search,
+  calendar: CalendarDays,
+  tasks: ClipboardList,
+  company: Briefcase,
+  organization: UsersRound,
+  "data-sources": Database,
+  settings: Settings,
+};

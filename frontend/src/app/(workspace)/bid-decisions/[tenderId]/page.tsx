@@ -1,5 +1,7 @@
 "use client";
 
+import { useRecordVisit } from "@/features/navigation/recent";
+
 
 import {
 
@@ -237,6 +239,17 @@ export default function BidDecisionWorkspacePage() {
     null,
   );
 
+
+  useRecordVisit(
+    workspace
+      ? {
+          href: `/bid-decisions/${tenderId}`,
+          title: workspace.opportunity.title,
+          subtitle: workspace.opportunity.buyerName,
+          kind: "bid",
+        }
+      : null,
+  );
 
   useEffect(
     () => {
@@ -698,6 +711,13 @@ export default function BidDecisionWorkspacePage() {
         >
           Open document & requirements workspace
         </Link>
+
+            <Link
+              href={`/bid-workspaces/${tenderId}/brief`}
+              className="ml-3 inline-flex h-10 items-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              Printable bid brief
+            </Link>
 
       </div>
 

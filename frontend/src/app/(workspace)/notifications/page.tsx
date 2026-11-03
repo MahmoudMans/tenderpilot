@@ -64,6 +64,13 @@ import {
 
 import {
 
+  useNotifications,
+
+} from "@/features/notifications/notifications-context";
+
+
+import {
+
   formatDate,
 
   formatEnum,
@@ -89,6 +96,13 @@ export default function NotificationsPage() {
     api,
 
   } = useAuth();
+
+
+  const {
+
+    adopt,
+
+  } = useNotifications();
 
 
   const [
@@ -267,6 +281,26 @@ export default function NotificationsPage() {
     },
     [
       api,
+    ],
+  );
+
+
+  // Whatever this page loads or changes is passed on, so the bell and the sidebar badge agree with it.
+  useEffect(
+    () => {
+
+      if (center !== null) {
+
+        adopt(
+          center,
+        );
+
+      }
+
+    },
+    [
+      center,
+      adopt,
     ],
   );
 
@@ -888,7 +922,7 @@ export default function NotificationsPage() {
                   icon={BellRing}
                   label="Active alerts"
                   value={
-                    center.summary.activeCount
+                    activeNotifications.length
                   }
                 />
 
@@ -906,7 +940,7 @@ export default function NotificationsPage() {
                   icon={AlertOctagon}
                   label="Critical"
                   value={
-                    center.summary.criticalCount
+                    activeNotifications.filter((item) => item.severity === "CRITICAL").length
                   }
                 />
 
@@ -915,7 +949,7 @@ export default function NotificationsPage() {
                   icon={TriangleAlert}
                   label="High"
                   value={
-                    center.summary.highCount
+                    activeNotifications.filter((item) => item.severity === "HIGH").length
                   }
                 />
 
@@ -1383,6 +1417,7 @@ export default function NotificationsPage() {
                   >
 
                     <select
+                      aria-label="What to watch"
                       value={
                         watchType
                       }
@@ -1419,6 +1454,7 @@ export default function NotificationsPage() {
 
 
                     <input
+                      aria-label="Tender or buyer UUID, or CPV prefix"
                       value={
                         targetKey
                       }
@@ -1460,6 +1496,7 @@ export default function NotificationsPage() {
                             event.target.value,
                           )
                       }
+                      aria-label="Watchlist label (optional)"
                       placeholder="Optional label"
                       className="
                         h-11

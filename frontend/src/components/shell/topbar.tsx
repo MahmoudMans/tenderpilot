@@ -1,381 +1,67 @@
 "use client";
 
+import { Menu, Search } from "lucide-react";
 
-import {
+import { NotificationBell } from "@/features/notifications/notification-bell";
+import { openCommandPalette } from "@/features/navigation/palette-events";
+import { Kbd } from "@/components/ui/kbd";
 
-  Bell,
+import { Breadcrumbs } from "./breadcrumbs";
+import { ThemeToggle } from "./theme-toggle";
+import { UserMenu } from "./user-menu";
 
-  LogOut,
-
-  Search,
-
-} from "lucide-react";
-
-
-import {
-
-  useRouter,
-
-} from "next/navigation";
-
-
-import {
-
-  useState,
-
-} from "react";
-
-
-import {
-
-  useAuth,
-
-} from "@/features/auth/auth-context";
-
-
-function initials(
-  value:
-    string,
-) {
-
-  return value
-    .split(
-      /\s+/,
-    )
-    .filter(
-      Boolean,
-    )
-    .slice(
-      0,
-      2,
-    )
-    .map(
-      (
-        part,
-      ) =>
-        part.charAt(
-          0,
-        ),
-    )
-    .join(
-      "",
-    )
-    .toUpperCase();
-
+function modifierLabel(): string {
+  return typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent) ? "⌘" : "Ctrl";
 }
 
-
-export function Topbar() {
-
-  const router =
-    useRouter();
-
-
-  const {
-
-    user,
-
-    logout,
-
-  } = useAuth();
-
-
-  const [
-
-    signingOut,
-
-    setSigningOut,
-
-  ] = useState(
-    false,
-  );
-
-
-  async function signOut() {
-
-    setSigningOut(
-      true,
-    );
-
-
-    try {
-
-      await logout();
-
-
-      router.replace(
-        "/login",
-      );
-
-
-    } finally {
-
-      setSigningOut(
-        false,
-      );
-
-    }
-
-  }
-
-
+export function Topbar({ onOpenNavigation }: { onOpenNavigation: () => void }) {
   return (
-
     <header
-      className="
-        flex
-        h-20
-        items-center
-        justify-between
-        border-b
-        border-slate-200/80
-        bg-white/80
-        px-5
-        backdrop-blur
-        md:px-8
-      "
+      data-app-chrome
+      className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-line bg-surface/80 px-4 backdrop-blur-md md:px-8"
     >
-
-      <div
-        className="
-          relative
-          hidden
-          w-full
-          max-w-xl
-          md:block
-        "
+      <button
+        type="button"
+        onClick={onOpenNavigation}
+        aria-label="Open navigation"
+        className="grid size-10 shrink-0 place-items-center rounded-xl border border-line bg-surface text-muted shadow-sm transition hover:text-ink lg:hidden"
       >
+        <Menu className="size-4" />
+      </button>
 
-        <Search
-          className="
-            pointer-events-none
-            absolute
-            left-3.5
-            top-1/2
-            size-4
-            -translate-y-1/2
-            text-slate-400
-          "
-        />
-
-
-        <input
-
-          aria-label="
-            Global search
-          "
-
-          disabled
-
-          placeholder="
-            Search tenders, buyers or suppliers...
-          "
-
-          className="
-            h-11
-            w-full
-            rounded-xl
-            border
-            border-slate-200
-            bg-slate-50
-            pl-10
-            pr-4
-            text-sm
-            text-slate-700
-            outline-none
-            placeholder:text-slate-400
-            disabled:cursor-not-allowed
-          "
-
-          title="
-            Global search will activate during the OpenSearch phase.
-          "
-
-        />
-
+      <div className="min-w-0 flex-1 md:flex-none md:max-w-[16rem] lg:max-w-[22rem]">
+        <Breadcrumbs />
       </div>
 
-
-      <div
-        className="
-          ml-auto
-          flex
-          items-center
-          gap-3
-        "
-      >
-
+      <div className="hidden min-w-0 flex-1 justify-center md:flex">
         <button
-
           type="button"
-
-          aria-label="
-            Notifications
-          "
-
-          className="
-            grid
-            size-10
-            place-items-center
-            rounded-xl
-            border
-            border-slate-200
-            bg-white
-            text-slate-500
-            shadow-sm
-          "
-
+          onClick={openCommandPalette}
+          aria-label="Search TenderPilot"
+          className="flex h-10 w-full max-w-md items-center gap-2.5 rounded-xl border border-line bg-surface-2 px-3.5 text-left text-sm text-faint transition hover:border-line-strong hover:bg-surface"
         >
-
-          <Bell
-            className="
-              size-4
-            "
-          />
-
+          <Search className="size-4 shrink-0" aria-hidden="true" />
+          <span className="flex-1 truncate">Search tenders, buyers, pages…</span>
+          <span className="flex items-center gap-1">
+            <Kbd>{modifierLabel()}</Kbd>
+            <Kbd>K</Kbd>
+          </span>
         </button>
-
-
-        <div
-          className="
-            flex
-            items-center
-            gap-3
-            rounded-xl
-            border
-            border-slate-200
-            bg-white
-            px-3
-            py-2
-            shadow-sm
-          "
-        >
-
-          <div
-            className="
-              grid
-              size-8
-              place-items-center
-              rounded-lg
-              bg-[#14213d]
-              text-[11px]
-              font-semibold
-              text-white
-            "
-          >
-
-            {
-              user
-
-                ? initials(
-                    user.fullName,
-                  )
-
-                : "TP"
-            }
-
-          </div>
-
-
-          <div
-            className="
-              hidden
-              sm:block
-            "
-          >
-
-            <p
-              className="
-                max-w-40
-                truncate
-                text-xs
-                font-semibold
-                text-slate-800
-              "
-            >
-
-              {
-                user?.fullName
-                ??
-                "TenderPilot"
-              }
-
-            </p>
-
-
-            <p
-              className="
-                max-w-40
-                truncate
-                text-[11px]
-                text-slate-500
-              "
-            >
-
-              {
-                user?.organization.name
-                ??
-                ""
-              }
-
-            </p>
-
-          </div>
-
-
-          <button
-
-            type="button"
-
-            disabled={
-              signingOut
-            }
-
-            onClick={
-              () => {
-
-                void signOut();
-
-              }
-            }
-
-            aria-label="
-              Sign out
-            "
-
-            title="
-              Sign out
-            "
-
-            className="
-              ml-1
-              grid
-              size-8
-              place-items-center
-              rounded-lg
-              text-slate-400
-              transition
-              hover:bg-slate-50
-              hover:text-slate-700
-              disabled:opacity-50
-            "
-
-          >
-
-            <LogOut
-              className="
-                size-4
-              "
-            />
-
-          </button>
-
-        </div>
-
       </div>
 
+      <div className="ml-auto flex shrink-0 items-center gap-2 md:ml-0">
+        <button
+          type="button"
+          onClick={openCommandPalette}
+          aria-label="Search TenderPilot"
+          className="grid size-10 place-items-center rounded-xl border border-line bg-surface text-muted shadow-sm transition hover:text-ink md:hidden"
+        >
+          <Search className="size-4" />
+        </button>
+        <ThemeToggle />
+        <NotificationBell />
+        <UserMenu />
+      </div>
     </header>
-
   );
-
 }

@@ -29,6 +29,7 @@ import {
 
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 
 import {
@@ -43,10 +44,16 @@ import {
 
 
 import {
-
   useAuth,
-
 } from "@/features/auth/auth-context";
+
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/toast";
+import { readOption, readText, type ParamReader } from "@/features/navigation/url-filters";
+
+import { SavedViewsMenu } from "@/features/saved-views/saved-views-menu";
+
+import { useSavedViews } from "@/features/saved-views/use-saved-views";
 
 
 import {
@@ -107,22 +114,61 @@ type SearchFilters = {
 };
 
 
-const EMPTY_FILTERS: SearchFilters = {
 
-  status:
-    "",
 
-  source:
-    "",
 
-  contractNature:
-    "",
+/** Result window sizes. The backend never returns more than 100 hits per request. */
+const SEARCH_SIZES = [25, 50, 100] as const;
 
-  minimumQualityScore:
-    "",
-
+type AppliedSearch = {
+  query: string;
+  filters: SearchFilters;
+  size: number;
 };
 
+type SavedSearch = {
+  query: string;
+  filters: SearchFilters;
+};
+
+function buildSearchParams({ query, filters, size }: AppliedSearch): URLSearchParams {
+  const params = new URLSearchParams();
+  if (query.trim() !== "") params.set("q", query.trim());
+  if (filters.status !== "") params.set("status", filters.status);
+  if (filters.source !== "") params.set("source", filters.source);
+  if (filters.contractNature !== "") params.set("contractNature", filters.contractNature);
+  if (filters.minimumQualityScore !== "") params.set("minQualityScore", filters.minimumQualityScore);
+  params.set("size", String(size));
+  return params;
+}
+
+function hasAnyFilter(query: string, filters: SearchFilters): boolean {
+  return (
+    query.trim() !== "" ||
+    filters.status !== "" ||
+    filters.source !== "" ||
+    filters.contractNature !== "" ||
+    filters.minimumQualityScore !== ""
+  );
+}
+
+const STATUS_VALUES: ProcurementStatus[] = ["PUBLISHED", "UPDATED", "AWARDED", "CLOSED"];
+const SOURCE_VALUES: ProcurementSource[] = ["TED", "BOAMP", "DECP", "MANUAL_DEMO"];
+const NATURE_VALUES: ContractNature[] = ["WORKS", "SERVICES", "SUPPLIES", "MIXED"];
+const QUALITY_VALUES = ["90", "75", "60"];
+
+/** Reads the starting search from the address, so links like /search?q=72000000 work. */
+function startFromParams(params: ParamReader): SavedSearch {
+  return {
+    query: readText(params, "q"),
+    filters: {
+      status: readOption<SearchFilters["status"]>(params, "status", STATUS_VALUES, ""),
+      source: readOption<SearchFilters["source"]>(params, "source", SOURCE_VALUES, ""),
+      contractNature: readOption<SearchFilters["contractNature"]>(params, "contractNature", NATURE_VALUES, ""),
+      minimumQualityScore: readOption<string>(params, "minQualityScore", QUALITY_VALUES, ""),
+    },
+  };
+}
 
 export default function ProcurementSearchPage() {
 
@@ -135,26 +181,24 @@ export default function ProcurementSearchPage() {
   } = useAuth();
 
 
-  const [
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
+  const [start] = useState(() => startFromParams(searchParams));
+  const [query, setQuery] = useState(start.query);
+  const [applied, setApplied] = useState<AppliedSearch>(() => ({
+    query: start.query,
+    filters: start.filters,
+    size: SEARCH_SIZES[0],
+  }));
 
-    query,
+  const [loadingMore, setLoadingMore] = useState(false);
 
-    setQuery,
+  const [exhausted, setExhausted] = useState(false);
 
-  ] = useState(
-    "",
-  );
+  const { views, save, remove } = useSavedViews<SavedSearch>("search");
 
 
-  const [
-
-    filters,
-
-    setFilters,
-
-  ] = useState<SearchFilters>(
-    EMPTY_FILTERS,
-  );
+  const [filters, setFilters] = useState<SearchFilters>(start.filters);
 
 
   const [
@@ -264,7 +308,7 @@ export default function ProcurementSearchPage() {
         ),
 
         api<ProcurementSearchResponse>(
-          "/api/v1/search/opportunities?size=25",
+          `/api/v1/search/opportunities?${buildSearchParams({ ...start, size: SEARCH_SIZES[0] }).toString()}`,
         ),
 
       ])
@@ -330,157 +374,65 @@ export default function ProcurementSearchPage() {
 
 
       return () => {
-
         cancelled =
           true;
-
       };
-
     },
     [
       api,
+      start,
     ],
   );
 
-
-  function buildParameters() {
-
-    const params =
-      new URLSearchParams();
-
-
-    if (
-      query.trim()
-    ) {
-
-      params.set(
-        "q",
-        query.trim(),
-      );
-
+  /** Copies a link that opens this same search, so it can be shared with a colleague. */
+  async function copyLink() {
+    const params = buildSearchParams(applied);
+    params.delete("size");
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/search?${params.toString()}`);
+      toast({ tone: "success", title: "Link copied", description: "Anyone in your organization can open this search." });
+    } catch {
+      toast({ tone: "error", title: "Could not copy the link", description: "Copy the address from the browser instead." });
     }
-
-
-    if (
-      filters.status
-    ) {
-
-      params.set(
-        "status",
-        filters.status,
-      );
-
-    }
-
-
-    if (
-      filters.source
-    ) {
-
-      params.set(
-        "source",
-        filters.source,
-      );
-
-    }
-
-
-    if (
-      filters.contractNature
-    ) {
-
-      params.set(
-        "contractNature",
-        filters.contractNature,
-      );
-
-    }
-
-
-    if (
-      filters.minimumQualityScore
-    ) {
-
-      params.set(
-        "minQualityScore",
-        filters.minimumQualityScore,
-      );
-
-    }
-
-
-    params.set(
-      "size",
-      "50",
-    );
-
-
-    return params;
-
   }
 
-
-  async function executeSearch(
-    event?:
-      FormEvent<HTMLFormElement>,
-  ) {
-
-    event?.preventDefault();
-
-
-    setSearching(
-      true,
-    );
-
-    setError(
-      null,
-    );
-
+  async function runSearch(next: AppliedSearch, more: boolean) {
+    if (more) {
+      setLoadingMore(true);
+    } else {
+      setSearching(true);
+    }
+    setError(null);
 
     try {
-
-      const response =
-        await api<ProcurementSearchResponse>(
-          `/api/v1/search/opportunities?${buildParameters().toString()}`,
-        );
-
-
-      setResult(
-        response,
+      const response = await api<ProcurementSearchResponse>(
+        `/api/v1/search/opportunities?${buildSearchParams(next).toString()}`,
       );
+      setResult(response);
+      setApplied(next);
+      setExhausted(more && response.hits.length <= (result?.hits.length ?? 0));
 
-
-      const projectionStatus =
-        await api<SearchProjectionStatus>(
-          "/api/v1/search/status",
-        );
-
-
-      setStatus(
-        projectionStatus,
-      );
-
-
-    } catch (
-      cause
-    ) {
-
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : "Procurement search failed.",
-      );
-
+      if (!more) {
+        setStatus(await api<SearchProjectionStatus>("/api/v1/search/status"));
+      }
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Procurement search failed.");
     } finally {
-
-      setSearching(
-        false,
-      );
-
+      setSearching(false);
+      setLoadingMore(false);
     }
-
   }
 
+  async function executeSearch(event?: FormEvent<HTMLFormElement>) {
+    event?.preventDefault();
+    await runSearch({ query, filters, size: SEARCH_SIZES[0] }, false);
+  }
+
+  async function showMore() {
+    const nextSize = SEARCH_SIZES.find((size) => size > applied.size);
+    if (nextSize === undefined) return;
+    await runSearch({ ...applied, size: nextSize }, true);
+  }
 
   async function rebuildIndex() {
 
@@ -548,6 +500,13 @@ export default function ProcurementSearchPage() {
 
   }
 
+
+  const nextSearchSize = SEARCH_SIZES.find((size) => size > applied.size);
+
+  // The PostgreSQL fallback reports only the hits it returned as the total, so a full page may mean more exist.
+  const mayHaveMore =
+    result !== null &&
+    (result.hits.length < result.total || (result.fallback && result.hits.length >= applied.size));
 
   if (
     loading
@@ -956,9 +915,8 @@ export default function ProcurementSearchPage() {
                     event.target.value,
                   )
               }
-              placeholder="
-                Search renovation, cybersecurity, buyer, CPV, supplier...
-              "
+              aria-label="Search the tender catalogue"
+              placeholder="Search renovation, cybersecurity, buyer, CPV, supplier..."
               className="
                 h-12
                 w-full
@@ -1040,6 +998,7 @@ export default function ProcurementSearchPage() {
         >
 
           <select
+            aria-label="Status"
             value={
               filters.status
             }
@@ -1092,6 +1051,7 @@ export default function ProcurementSearchPage() {
 
 
           <select
+            aria-label="Source"
             value={
               filters.source
             }
@@ -1144,6 +1104,7 @@ export default function ProcurementSearchPage() {
 
 
           <select
+            aria-label="Contract type"
             value={
               filters.contractNature
             }
@@ -1196,6 +1157,7 @@ export default function ProcurementSearchPage() {
 
 
           <select
+            aria-label="Minimum data quality"
             value={
               filters.minimumQualityScore
             }
@@ -1305,29 +1267,57 @@ export default function ProcurementSearchPage() {
         </div>
 
 
-        {
-          result?.fallback
-
-            ? (
-
-              <span
-                className="
-                  rounded-full
-                  bg-amber-100
-                  px-3
-                  py-1.5
-                  text-xs
-                  font-semibold
-                  text-amber-800
-                "
-              >
-                Search fallback active
-              </span>
-
-            )
-
-            : null
-        }
+        <div
+          className="
+            flex
+            flex-wrap
+            items-center
+            gap-2
+          "
+        >
+          {
+            result?.fallback
+              ? (
+                <span
+                  className="
+                    rounded-full
+                    bg-amber-100
+                    px-3
+                    py-1.5
+                    text-xs
+                    font-semibold
+                    text-amber-800
+                  "
+                >
+                  Search fallback active
+                </span>
+              )
+              : null
+          }
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={!hasAnyFilter(applied.query, applied.filters)}
+            onClick={() => {
+              void copyLink();
+            }}
+          >
+            Copy link
+          </Button>
+          <SavedViewsMenu<SavedSearch>
+            views={views}
+            canSave={hasAnyFilter(query, filters)}
+            onApply={(value) => {
+              setQuery(value.query);
+              setFilters(value.filters);
+              void runSearch({ query: value.query, filters: value.filters, size: SEARCH_SIZES[0] }, false);
+            }}
+            onSave={(name) => {
+              save(name, { query: query.trim(), filters });
+            }}
+            onRemove={remove}
+          />
+        </div>
 
       </div>
 
@@ -1694,9 +1684,64 @@ export default function ProcurementSearchPage() {
         {
           result
           &&
+          result.hits.length > 0
+            ? (
+              <div
+                className="
+                  flex
+                  flex-col
+                  items-center
+                  gap-3
+                  pt-2
+                "
+              >
+                <p
+                  className="
+                    text-xs
+                    text-slate-500
+                  "
+                >
+                  Showing {result.hits.length.toLocaleString()}{result.fallback ? " results" : ` of ${result.total.toLocaleString()}`}
+                </p>
+                {
+                  mayHaveMore
+                    ? (
+                      nextSearchSize !== undefined && !exhausted
+                        ? (
+                          <Button
+                            loading={loadingMore}
+                            onClick={() => void showMore()}
+                          >
+                            Show more results
+                          </Button>
+                        )
+                        : (
+                          <p
+                            className="
+                              max-w-md
+                              text-center
+                              text-xs
+                              leading-5
+                              text-slate-500
+                            "
+                          >
+                            No more results can be loaded for this search.
+                            Add a filter or a more specific term to narrow the list.
+                          </p>
+                        )
+                    )
+                    : null
+                }
+              </div>
+            )
+            : null
+        }
+
+        {
+          result
+          &&
           result.hits.length ===
           0
-
             ? (
 
               <div

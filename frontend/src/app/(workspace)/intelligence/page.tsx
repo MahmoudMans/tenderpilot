@@ -810,9 +810,7 @@ export default function IntelligencePage() {
             value={
               overview.criticalIssueCount
             }
-            description="
-              Invalid chronology, missing provenance or missing award records.
-            "
+            description="Invalid chronology, missing provenance or missing award records."
           />
 
 
@@ -822,9 +820,7 @@ export default function IntelligencePage() {
             value={
               overview.warningIssueCount
             }
-            description="
-              Missing CPV, geography, deadline or award supplier information.
-            "
+            description="Missing CPV, geography, deadline or award supplier information."
           />
 
 
@@ -834,9 +830,7 @@ export default function IntelligencePage() {
             value={
               overview.infoIssueCount
             }
-            description="
-              Useful but non-blocking fields such as estimated value or source URL.
-            "
+            description="Useful but non-blocking fields such as estimated value or source URL."
           />
 
         </div>

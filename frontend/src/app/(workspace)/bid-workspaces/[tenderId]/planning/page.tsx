@@ -13,13 +13,19 @@ import {
 
   ClipboardList,
 
+  Columns3,
+
   Clock3,
 
   Flag,
 
   Gauge,
 
+  List,
+
   LoaderCircle,
+
+  Pencil,
 
   Plus,
 
@@ -87,6 +93,36 @@ import type {
   BidTaskStatus,
 
 } from "@/features/bid-planning/bid-planning-types";
+
+
+import { SegmentedControl } from "@/components/ui/segmented-control";
+
+import { TaskBoard } from "@/features/bid-planning/task-board";
+
+import { useStoredState } from "@/lib/storage";
+
+import { STORAGE_KEYS } from "@/lib/storage-keys";
+
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+
+import { TaskEditDialog, type TaskPatch } from "@/features/bid-planning/task-edit-dialog";
+
+import {
+  NO_TASK_FILTERS,
+  TaskFilterBar,
+  filterTasks,
+  type TaskFilters,
+} from "@/features/bid-planning/task-filters";
+
+import { ownerAliases } from "@/lib/owner";
+
+
+type TaskView = "list" | "board";
+
+const TASK_VIEWS = [
+  { value: "list", label: "List", icon: List },
+  { value: "board", label: "Board", icon: Columns3 },
+] as const;
 
 
 const TASK_STATUSES: BidTaskStatus[] = [
@@ -375,6 +411,21 @@ export default function BidPlanningPage() {
   );
 
 
+  const [taskView, setTaskView] = useStoredState<TaskView>(STORAGE_KEYS.planningTasksView, "list");
+
+
+  const [editingTask, setEditingTask] = useState<BidPlanningWorkspace["tasks"][number] | null>(null);
+
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null);
+
+  const [taskFilters, setTaskFilters] = useState<TaskFilters>(NO_TASK_FILTERS);
+
+
+  const myNames = ownerAliases(user);
+
+  const visibleTasks = filterTasks(workspace?.tasks ?? [], taskFilters, myNames);
+
+
   const canEditTasks =
     workspace?.writable ===
       true
@@ -591,6 +642,65 @@ export default function BidPlanningPage() {
           ? cause.message
           : "Unable to update task.",
       );
+
+
+    } finally {
+
+      setBusy(
+        false,
+      );
+
+    }
+
+  }
+
+
+  async function saveTask(
+    taskId: string,
+    patch: TaskPatch,
+  ): Promise<string | null> {
+
+    setBusy(
+      true,
+    );
+
+
+    try {
+
+      const updated =
+        await api<BidPlanningWorkspace>(
+          `/api/v1/bid-planning/${tenderId}/tasks/${taskId}`,
+          {
+            method:
+              "PUT",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify(
+                patch,
+              ),
+          },
+        );
+
+
+      setWorkspace(
+        updated,
+      );
+
+      return null;
+
+
+    } catch (
+      cause
+    ) {
+
+      return cause instanceof Error
+        ? cause.message
+        : "Unable to save the task.";
 
 
     } finally {
@@ -1168,13 +1278,40 @@ export default function BidPlanningPage() {
       </div>
 
 
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete this task?"
+        description={
+          pendingDelete !== null
+            ? `"${pendingDelete.title}" will be removed from the plan. This cannot be undone.`
+            : ""
+        }
+        confirmLabel="Delete task"
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (pendingDelete !== null) {
+            const taskId = pendingDelete.id;
+            setPendingDelete(null);
+            void deleteTask(taskId);
+          }
+        }}
+      />
+
+
+      <TaskEditDialog
+        key={editingTask?.id ?? "none"}
+        task={editingTask}
+        onClose={() => setEditingTask(null)}
+        onSave={saveTask}
+      />
+
+
       <div
-        className="
-          mt-6
-          grid
-          gap-6
-          xl:grid-cols-[1.15fr_0.85fr]
-        "
+        className={
+          taskView === "board"
+            ? "mt-6 grid gap-6"
+            : "mt-6 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]"
+        }
       >
 
         <section
@@ -1190,6 +1327,7 @@ export default function BidPlanningPage() {
           <div
             className="
               flex
+              flex-wrap
               items-center
               gap-3
             "
@@ -1227,6 +1365,19 @@ export default function BidPlanningPage() {
 
             </div>
 
+
+            <div className="ml-auto">
+
+              <SegmentedControl<TaskView>
+                label="Task view"
+                size="sm"
+                value={taskView}
+                onChange={setTaskView}
+                options={TASK_VIEWS}
+              />
+
+            </div>
+
           </div>
 
 
@@ -1256,6 +1407,7 @@ export default function BidPlanningPage() {
                           event.target.value,
                         )
                     }
+                    aria-label="Task title"
                     placeholder="Task title"
                     className="
                       h-11
@@ -1282,6 +1434,7 @@ export default function BidPlanningPage() {
                           event.target.value,
                         )
                     }
+                    aria-label="Task description"
                     placeholder="Task description"
                     rows={2}
                     className="
@@ -1307,6 +1460,7 @@ export default function BidPlanningPage() {
                   >
 
                     <select
+                      aria-label="Task priority"
                       value={
                         priority
                       }
@@ -1358,6 +1512,7 @@ export default function BidPlanningPage() {
 
 
                     <select
+                      aria-label="Task milestone"
                       value={
                         milestone
                       }
@@ -1420,6 +1575,7 @@ export default function BidPlanningPage() {
                             event.target.value,
                           )
                       }
+                      aria-label="Task owner"
                       placeholder="Owner / assignee"
                       className="
                         h-11
@@ -1434,6 +1590,7 @@ export default function BidPlanningPage() {
 
 
                     <input
+                      aria-label="Task due date"
                       type="date"
                       value={
                         dueDate
@@ -1502,6 +1659,46 @@ export default function BidPlanningPage() {
           }
 
 
+          {
+            workspace.tasks.length > 0
+
+              ? (
+
+                <TaskFilterBar
+                  tasks={workspace.tasks}
+                  visible={visibleTasks}
+                  filters={taskFilters}
+                  onChange={setTaskFilters}
+                  aliases={myNames}
+                />
+
+              )
+
+              : null
+          }
+
+
+          {
+            taskView === "board"
+
+              ? (
+
+                <TaskBoard
+                  tasks={visibleTasks}
+                  canEdit={canEditTasks}
+                  busy={busy}
+                  onEdit={setEditingTask}
+                  onMove={
+                    (taskId, status) => {
+                      void updateTaskStatus(taskId, status);
+                    }
+                  }
+                />
+
+              )
+
+              : (
+
           <div
             className="
               mt-6
@@ -1510,7 +1707,7 @@ export default function BidPlanningPage() {
           >
 
             {
-              workspace.tasks.map(
+              visibleTasks.map(
                 (
                   task,
                 ) => (
@@ -1725,6 +1922,7 @@ export default function BidPlanningPage() {
                             ? (
 
                               <select
+                                aria-label={`Status of task ${task.title}`}
                                 value={
                                   task.status
                                 }
@@ -1796,20 +1994,56 @@ export default function BidPlanningPage() {
 
 
                         {
-                          canDelete
-
+                          canEditTasks
                             ? (
-
                               <button
                                 type="button"
                                 disabled={
                                   busy
                                 }
+                                aria-label={`Edit task ${task.title}`}
+                                title="Edit task"
                                 onClick={
                                   () => {
-                                    void deleteTask(
-                                      task.id,
+                                    setEditingTask(
+                                      task,
                                     );
+                                  }
+                                }
+                                className="
+                                  grid
+                                  size-9
+                                  place-items-center
+                                  rounded-xl
+                                  border
+                                  border-slate-200
+                                  text-slate-600
+                                  disabled:opacity-50
+                                "
+                              >
+                                <Pencil
+                                  className="size-4"
+                                />
+                              </button>
+                            )
+                            : null
+                        }
+                        {
+                          canDelete
+                            ? (
+                              <button
+                                type="button"
+                                disabled={
+                                  busy
+                                }
+                                aria-label={`Delete task ${task.title}`}
+                                title="Delete task"
+                                onClick={
+                                  () => {
+                                    setPendingDelete({
+                                      id: task.id,
+                                      title: task.title,
+                                    });
                                   }
                                 }
                                 className="
@@ -1845,7 +2079,7 @@ export default function BidPlanningPage() {
 
 
             {
-              workspace.tasks.length ===
+              visibleTasks.length ===
               0
 
                 ? (
@@ -1862,7 +2096,11 @@ export default function BidPlanningPage() {
                       text-slate-400
                     "
                   >
-                    No bid tasks have been created.
+                    {
+                      workspace.tasks.length === 0
+                        ? "No bid tasks have been created."
+                        : "No tasks match these filters."
+                    }
                   </div>
 
                 )
@@ -1871,6 +2109,9 @@ export default function BidPlanningPage() {
             }
 
           </div>
+
+              )
+          }
 
         </section>
 
@@ -2367,6 +2608,7 @@ export default function BidPlanningPage() {
                             event.target.value,
                           )
                       }
+                      aria-label="Portal receipt or submission reference"
                       placeholder="Portal receipt / submission reference"
                       className="
                         h-11

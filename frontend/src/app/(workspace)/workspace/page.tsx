@@ -1,96 +1,10 @@
-import {
-
-  Activity,
-
-  ArrowRight,
-
-  BarChart3,
-
-  BellRing,
-
-  Building2,
-
-  Factory,
-
-  FileSearch,
-
-  Gauge,
-
-  Grid2X2,
-
-  LayoutDashboard,
-
-  Scale,
-
-  Target,
-
-} from "lucide-react";
-
-
-import type {
-
-  LucideIcon,
-
-} from "lucide-react";
-
+import { ArrowRight } from "lucide-react";
 
 import Link from "next/link";
 
+import { navigationIcons } from "@/features/navigation/navigation-icons";
 
-import {
-
-  productNavigationGroups,
-
-} from "@/features/navigation/product-navigation";
-
-
-import type {
-
-  ProductNavigationIcon,
-
-} from "@/features/navigation/product-navigation";
-
-
-const icons:
-Record<
-  ProductNavigationIcon,
-  LucideIcon
-> = {
-
-  workspace:
-    Grid2X2,
-
-  dashboard:
-    LayoutDashboard,
-
-  opportunities:
-    FileSearch,
-
-  matches:
-    Target,
-
-  decisions:
-    Scale,
-
-  notifications:
-    BellRing,
-
-  market:
-    BarChart3,
-
-  buyers:
-    Building2,
-
-  suppliers:
-    Factory,
-
-  intelligence:
-    Gauge,
-
-  operations:
-    Activity,
-
-};
+import { productNavigationGroups } from "@/features/navigation/product-navigation";
 
 
 export default function WorkspaceMapPage() {
@@ -106,6 +20,7 @@ export default function WorkspaceMapPage() {
 
       <section
         className="
+          tp-dark-surface
           rounded-[32px]
           bg-[#14213d]
           p-8
@@ -286,7 +201,7 @@ export default function WorkspaceMapPage() {
                         ) => {
 
                           const Icon =
-                            icons[
+                            navigationIcons[
                               item.icon
                             ];
 

@@ -25,7 +25,7 @@ import {
 import {
 
   API_BASE_URL,
-
+  endsSession,
   loginSession,
 
   logoutSession,
@@ -35,7 +35,7 @@ import {
   refreshSession,
 
   registerSession,
-
+  requestOrNetworkError,
 } from "./auth-api";
 
 
@@ -56,7 +56,9 @@ type AuthStatus =
 
   | "loading"
   | "authenticated"
-  | "unauthenticated";
+  | "unauthenticated"
+  /** The server could not be reached, so it is not known whether the session is still valid. */
+  | "unreachable";
 
 
 type AuthContextValue = {
@@ -82,6 +84,10 @@ type AuthContextValue = {
     ) => Promise<void>;
 
   logout:
+    () => Promise<void>;
+
+  /** Tries to restore the session again after the server could not be reached. */
+  retry:
     () => Promise<void>;
 
   api:
@@ -301,13 +307,29 @@ export function AuthProvider({
           },
         )
         .catch(
-          () => {
+          (
+            cause,
+          ) => {
 
             if (
               !controller.signal.aborted
             ) {
 
-              clearSession();
+              if (
+                endsSession(
+                  cause,
+                )
+              ) {
+
+                clearSession();
+
+              } else {
+
+                setStatus(
+                  "unreachable",
+                );
+
+              }
 
             }
 
@@ -412,6 +434,43 @@ export function AuthProvider({
     );
 
 
+  const retry =
+
+    useCallback(
+      async () => {
+
+        try {
+
+          applySession(
+            await refreshSession(),
+          );
+
+        } catch (
+          cause
+        ) {
+
+          if (
+            endsSession(
+              cause,
+            )
+          ) {
+
+            clearSession();
+
+          }
+
+        }
+
+      },
+
+      [
+        applySession,
+        clearSession,
+      ],
+
+    );
+
+
   const api =
 
     useCallback(
@@ -462,7 +521,7 @@ export function AuthProvider({
             );
 
 
-            return fetch(
+            return requestOrNetworkError(
 
               `${API_BASE_URL}${path}`,
 
@@ -515,7 +574,16 @@ export function AuthProvider({
             cause
           ) {
 
-            clearSession();
+            if (
+              endsSession(
+                cause,
+              )
+            ) {
+
+              clearSession();
+
+            }
+
 
             throw cause;
 
@@ -553,6 +621,8 @@ export function AuthProvider({
 
         logout,
 
+        retry,
+
         api,
 
       }),
@@ -563,6 +633,7 @@ export function AuthProvider({
         login,
         register,
         logout,
+        retry,
         api,
       ],
 
